@@ -58,8 +58,11 @@ public class entriesProgram
                     String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
                             entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
 
+            File targetFolder = new File("Downloaded");
+            targetFolder.mkdir();
+            
             String folderName = entries.get(i).getName();
-            File outputDirectory = new File(folderName);
+            File outputDirectory = new File(targetFolder, folderName);
             outputDirectory.mkdir();
 
             if (entries.get(i).getEntryType().toString().equals("Folder"))
@@ -71,24 +74,33 @@ public class entriesProgram
                 List<Entry> subEntries = val.getValue();
                 for (int j = 0; j < subEntries.size(); j++)
                 {
-                    download(subEntries, j, client, repositoryId, outputDirectory);
+                    download(subEntries, j, client, repositoryId, outputDirectory, targetFolder);
                     System.out.println("fold");
                 }
             }
             else
             {
-                download(entries, i, client, repositoryId, outputDirectory);
+                
+                download(entries, i, client, repositoryId, outputDirectory, targetFolder);
                 System.out.println("doc");
             }
         }
         client.close();
     }
 
-    public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID, File outDir)
+    public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID, File outDir, File targetFolder)
     {
         int entryIdToDownload = en.get(n).getId();
-        String FILE_NAME = outDir + "\\" + en.get(n).getName();
-
+        
+        String FILE_NAME; //= outDir + "\\" + en.get(n).getName();
+        
+        if (en.get(n).getEntryType().toString().equals("Document")){
+            FILE_NAME = targetFolder + "\\" + en.get(n).getName();
+        }
+        else {
+            FILE_NAME = targetFolder + "\\" + outDir + "\\" + en.get(n).getName();
+        }
+        
         Consumer<InputStream> consumer = inputStream ->
         {
             File exportedFile = new File(FILE_NAME);
