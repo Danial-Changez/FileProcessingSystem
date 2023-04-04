@@ -60,6 +60,7 @@ public class entriesProgram
             
             String folderName = entries.get(i).getName();
             File outputDirectory = new File(folderName);
+            System.out.println(folderName);
             
             if (entries.get(i).getEntryType().toString().equals("Folder"))
             {
