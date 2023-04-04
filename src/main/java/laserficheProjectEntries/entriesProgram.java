@@ -17,9 +17,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
-//import org.json.simple.JSONArray;
-//import org.json.simple.JSONObject;
-//import org.json.simple.parser.*;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.*;
 
 /**
  *
@@ -57,24 +57,24 @@ public class entriesProgram
             System.out.println(
                     String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
                             entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
-            
+
             String folderName = entries.get(i).getName();
             File outputDirectory = new File(folderName);
-            System.out.println(folderName);
-            
+            outputDirectory.mkdir();
+
             if (entries.get(i).getEntryType().toString().equals("Folder"))
             {
                 ODataValueContextOfIListOfEntry val = client
                         .getEntriesClient()
                         .getEntryListing(repositoryId, entries.get(i).getId(), true, null, null, null, null, null, "name", null, null, null).join();
-                
+
                 List<Entry> subEntries = val.getValue();
                 for (int j = 0; j < subEntries.size(); j++)
                 {
                     download(subEntries, j, client, repositoryId, outputDirectory);
                     System.out.println("fold");
                 }
-            } 
+            }
             else
             {
                 download(entries, i, client, repositoryId, outputDirectory);
@@ -84,10 +84,11 @@ public class entriesProgram
         client.close();
     }
 
-    public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID, File outputDirectory)
+    public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID, File outDir)
     {
         int entryIdToDownload = en.get(n).getId();
-        String FILE_NAME = outputDirectory + "\\" + en.get(n).getName();
+        String FILE_NAME = outDir + "\\" + en.get(n).getName();
+
         Consumer<InputStream> consumer = inputStream ->
         {
             File exportedFile = new File(FILE_NAME);
@@ -124,6 +125,5 @@ public class entriesProgram
         cl.getEntriesClient()
                 .exportDocument(repID, entryIdToDownload, null, consumer)
                 .join();
-
     }
 }

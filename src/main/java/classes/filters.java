@@ -1,4 +1,4 @@
-package com.mycompany.finalproject;
+package classes;
 
 import java.util.ArrayList;
 import java.io.File;
