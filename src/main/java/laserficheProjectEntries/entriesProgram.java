@@ -39,12 +39,8 @@ public class entriesProgram
 
         RepositoryApiClient client = RepositoryApiClientImpl.createFromAccessKey(servicePrincipalKey, accessKey);
 
-        // Get information about the ROOT entry, i.e. entry with ID=1
-        // Accessed from provided JSON. Need to implement.
         int rootEntryId = 1;
         Entry entry = client.getEntriesClient().getEntry(repositoryId, rootEntryId, null).join();
-
-        // Get information about the child entries of the Root entry
         ODataValueContextOfIListOfEntry result = client
                 .getEntriesClient()
                 .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
@@ -52,6 +48,7 @@ public class entriesProgram
         List<Entry> entries = result.getValue();
         ArrayList<String> entriesString = new ArrayList<String>();
         boolean check = true;
+
         for (int i = 0; i < entries.size(); i++)
         {
             System.out.println(
@@ -59,8 +56,6 @@ public class entriesProgram
                             entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
 
             String folderName = entries.get(i).getName();
-//            File downloadFolder = new File("Downloads");
-//            downloadFolder.mkdir();
             File outputDirectory = new File(folderName);
             outputDirectory.mkdir();
 
@@ -77,6 +72,7 @@ public class entriesProgram
                     System.out.println("fold");
                 }
             }
+
             else
             {
                 check = false;
