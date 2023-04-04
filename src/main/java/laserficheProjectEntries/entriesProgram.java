@@ -51,18 +51,17 @@ public class entriesProgram
 
         List<Entry> entries = result.getValue();
         ArrayList<String> entriesString = new ArrayList<String>();
-
+        boolean check = true;
         for (int i = 0; i < entries.size(); i++)
         {
             System.out.println(
                     String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
                             entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
 
-            File targetFolder = new File("Downloaded");
-            targetFolder.mkdir();
-            
             String folderName = entries.get(i).getName();
-            File outputDirectory = new File(targetFolder, folderName);
+//            File downloadFolder = new File("Downloads");
+//            downloadFolder.mkdir();
+            File outputDirectory = new File(folderName);
             outputDirectory.mkdir();
 
             if (entries.get(i).getEntryType().toString().equals("Folder"))
@@ -74,36 +73,39 @@ public class entriesProgram
                 List<Entry> subEntries = val.getValue();
                 for (int j = 0; j < subEntries.size(); j++)
                 {
-                    download(subEntries, j, client, repositoryId, outputDirectory, targetFolder);
+                    download(subEntries, j, client, repositoryId, outputDirectory, check);
                     System.out.println("fold");
                 }
             }
             else
             {
-                
-                download(entries, i, client, repositoryId, outputDirectory, targetFolder);
+                check = false;
+                download(entries, i, client, repositoryId, outputDirectory, check);
                 System.out.println("doc");
             }
         }
         client.close();
     }
 
-    public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID, File outDir, File targetFolder)
+    public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID, File outDir, Boolean check)
     {
         int entryIdToDownload = en.get(n).getId();
-        
-        String FILE_NAME; //= outDir + "\\" + en.get(n).getName();
-        
-        if (en.get(n).getEntryType().toString().equals("Document")){
-            FILE_NAME = targetFolder + "\\" + en.get(n).getName();
-        }
-        else {
-            FILE_NAME = targetFolder + "\\" + outDir + "\\" + en.get(n).getName();
-        }
-        
+        String FILE_NAME = en.get(n).getName();
+
         Consumer<InputStream> consumer = inputStream ->
         {
-            File exportedFile = new File(FILE_NAME);
+            File exportedFile;
+
+            if (en.get(n).getEntryType().toString().equals("Document") && check)
+            {
+                exportedFile = new File(outDir, FILE_NAME);
+            }
+
+            else
+            {
+                exportedFile = new File(FILE_NAME);
+            }
+
             try (FileOutputStream outputStream = new FileOutputStream(exportedFile))
             {
                 byte[] buffer = new byte[1024];
