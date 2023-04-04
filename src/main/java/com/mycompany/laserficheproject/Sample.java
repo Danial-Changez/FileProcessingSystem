@@ -11,6 +11,7 @@ import com.laserfiche.repository.api.RepositoryApiClientImpl;
 import com.laserfiche.repository.api.clients.impl.model.Entry;
 import com.laserfiche.repository.api.clients.impl.model.ODataValueContextOfIListOfEntry;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +24,23 @@ import java.util.function.Consumer;
  * @author 
  */
 public class Sample {
+    
+    
+    //Method which could be used to read and save files within a specified directory
+    /*
+    public void saveFile(File fileReceived){
+        
+        if (fileReceived.isDirectory()){
+            File[] files = fileReceived.listFiles();
+            if (files != null){
+                for (File file: files){
+                    
+                }
+            }
+        } else {
+            
+        }
+    } */
 
     public static void main(String[] args) {
         String servicePrincipalKey = "5V-BSOZ4ZRXSPiPMSOiW";
@@ -47,18 +65,48 @@ public class Sample {
                 .getEntriesClient()
                 .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
         List<Entry> entries = result.getValue();
-        ArrayList<String> entriesString = new ArrayList<String>();
+        //ArrayList<String> entriesString = new ArrayList<String>();
+        int counter = 1;
         for (Entry childEntry : entries) {
             System.out.println(
                     String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
                             childEntry.getId(), childEntry.getName(), childEntry.getEntryType(), childEntry.getFullPath()));
-        }
+        
 
-        // Download an antry 
-        int entryIdToDownload = 25;
-        final String FILE_NAME = "DownloadedFile.txt";
+        String downloadedFilesPath = "C:\\Users\\hassa\\Documents\\NetBeansProjects\\Project";
+        // Download an entry
+        int entryIdToDownload = childEntry.getId();
+        String FILE_NAME = "DownloadedFile" + counter;
         Consumer<InputStream> consumer = inputStream -> {
-            File exportedFile = new File(FILE_NAME);
+            File exportedFile = new File(downloadedFilesPath, FILE_NAME);
+            
+            
+            //Determine whether targed being handled is file or folder
+            if (exportedFile.isDirectory()){
+                int counterWithin = 1;
+                File[] fileWithin = exportedFile.listFiles();
+                if (fileWithin != null){
+                    for (File file : fileWithin){
+                        if (file.isFile()){
+                            String fileName = file.getName() + counterWithin;
+                            counterWithin++;
+                            File outputFile = new File(downloadedFilesPath, fileName);
+                            try (FileInputStream inputStreamWithin = new FileInputStream(file);
+                                    FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+                                byte[] buffer = new byte[1024];
+                                int length;
+                                while ((length = inputStreamWithin.read(buffer)) > 0) {
+                                    outputStream.write(buffer, 0, length);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }
+                //counterWithin++;
+            }
+            
             try (FileOutputStream outputStream = new FileOutputStream(exportedFile)) {
                 byte[] buffer = new byte[1024];
                 while (true) {
@@ -78,11 +126,12 @@ public class Sample {
                 }
             }
         };
-
+        
         client.getEntriesClient()
                 .exportDocument(repositoryId, entryIdToDownload, null, consumer)
                 .join();
-
+        counter++;
+        }
         client.close();
     }
 }
