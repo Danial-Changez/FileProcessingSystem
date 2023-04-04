@@ -30,81 +30,97 @@ public class entriesProgram
 
     public static void main(String[] args)
     {
-        String path = "C:\\Users\\dania\\OneDrive\\Desktop\\Test Scenario.json";
+        String path = "remote";
 
-        if (path == "remote")
+        String servicePrincipalKey = "5V-BSOZ4ZRXSPiPMSOiW";
+        String accessKeyBase64 = "ewoJImN1c3RvbWVySWQiOiAiMTQwMTM1OTIzOCIsCgkiY2xpZW50SWQiOiAiNDg2NTYxNWMtMjVlMS00ZmMyLTk4YWYtNzYyZGMzMWRlYTcwIiwKCSJkb21haW4iOiAibGFzZXJmaWNoZS5jYSIsCgkiandrIjogewoJCSJrdHkiOiAiRUMiLAoJCSJjcnYiOiAiUC0yNTYiLAoJCSJ1c2UiOiAic2lnIiwKCQkia2lkIjogIjAxZUNsTmhaYVB2QWY2LXdRcDh1amVQRnkyRGNybi12NXBDRXVFT3ZzaHciLAoJCSJ4IjogInZqUzBPUFZBTjRWWjlMU3JQbDQtWHVJZFpBcjR2SmZnOEI3ZFhlV3c1Qk0iLAoJCSJ5IjogIkdxaXBGUEFXdzBiX3pQQ3VKWHhyeFZod0FrWW9SVHJzekNBMDcxUWY2b3ciLAoJCSJkIjogIjFjT1JjamJrMmhnUWN0dnVWSGp0M1pzUHJZZHVKejRhYWFOemYwSS1KSXMiLAoJCSJpYXQiOiAxNjc3Mjk3NjM2Cgl9Cn0=";
+        String repositoryId = "r-0001d410ba56";
+        AccessKey accessKey = AccessKey.createFromBase64EncodedAccessKey(accessKeyBase64);
+
+        RepositoryApiClient client = RepositoryApiClientImpl.createFromAccessKey(servicePrincipalKey, accessKey);
+
+        // Get information about the ROOT entry, i.e. entry with ID=1
+        // Accessed from provided JSON. Need to implement.
+        int rootEntryId = 1;
+        Entry entry = client.getEntriesClient().getEntry(repositoryId, rootEntryId, null).join();
+
+        // Get information about the child entries of the Root entry
+        ODataValueContextOfIListOfEntry result = client
+                .getEntriesClient()
+                .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
+
+        List<Entry> entries = result.getValue();
+        ArrayList<String> entriesString = new ArrayList<String>();
+
+        for (int i = 0; i < entries.size(); i++)
         {
-            String servicePrincipalKey = "5V-BSOZ4ZRXSPiPMSOiW";
-            String accessKeyBase64 = "ewoJImN1c3RvbWVySWQiOiAiMTQwMTM1OTIzOCIsCgkiY2xpZW50SWQiOiAiNDg2NTYxNWMtMjVlMS00ZmMyLTk4YWYtNzYyZGMzMWRlYTcwIiwKCSJkb21haW4iOiAibGFzZXJmaWNoZS5jYSIsCgkiandrIjogewoJCSJrdHkiOiAiRUMiLAoJCSJjcnYiOiAiUC0yNTYiLAoJCSJ1c2UiOiAic2lnIiwKCQkia2lkIjogIjAxZUNsTmhaYVB2QWY2LXdRcDh1amVQRnkyRGNybi12NXBDRXVFT3ZzaHciLAoJCSJ4IjogInZqUzBPUFZBTjRWWjlMU3JQbDQtWHVJZFpBcjR2SmZnOEI3ZFhlV3c1Qk0iLAoJCSJ5IjogIkdxaXBGUEFXdzBiX3pQQ3VKWHhyeFZod0FrWW9SVHJzekNBMDcxUWY2b3ciLAoJCSJkIjogIjFjT1JjamJrMmhnUWN0dnVWSGp0M1pzUHJZZHVKejRhYWFOemYwSS1KSXMiLAoJCSJpYXQiOiAxNjc3Mjk3NjM2Cgl9Cn0=";
-            String repositoryId = "r-0001d410ba56";
-            AccessKey accessKey = AccessKey.createFromBase64EncodedAccessKey(accessKeyBase64);
-
-            RepositoryApiClient client = RepositoryApiClientImpl.createFromAccessKey(servicePrincipalKey, accessKey);
-
-            // Get information about the ROOT entry, i.e. entry with ID=1
-            // Accessed from provided JSON. Need to implement.
-            int rootEntryId = 1;
-            Entry entry = client.getEntriesClient().getEntry(repositoryId, rootEntryId, null).join();
             System.out.println(
-                    String.format("Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
-                            entry.getId(), entry.getName(), entry.getEntryType(), entry.getFullPath()));
+                    String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
+                            entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
 
-            // Get information about the child entries of the Root entry
-            ODataValueContextOfIListOfEntry result = client
-                    .getEntriesClient()
-                    .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
-
-            List<Entry> entries = result.getValue();
-            ArrayList<String> entriesString = new ArrayList<String>();
-            int count = 0;
-            for (Entry childEntry : entries)
+            if (entries.get(i).getEntryType().toString().equals("Folder"))
             {
-                System.out.println(
-                        String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
-                                childEntry.getId(), childEntry.getName(), childEntry.getEntryType(), childEntry.getFullPath()));
+                ODataValueContextOfIListOfEntry val = client
+                        .getEntriesClient()
+                        .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
 
-                // Download an entry
-                int entryIdToDownload = childEntry.getId();
-                String FILE_NAME = "DownloadedFile" + count + ".txt";
-                Consumer<InputStream> consumer = inputStream ->
+                List<Entry> subEntries = val.getValue();
+                for (int j = 0; j < subEntries.size(); j++)
                 {
-                    File exportedFile = new File(FILE_NAME);
-                    try (FileOutputStream outputStream = new FileOutputStream(exportedFile))
-                    {
-                        byte[] buffer = new byte[1024];
-                        while (true)
-                        {
-                            int length = inputStream.read(buffer);
-                            if (length == -1)
-                            {
-                                break;
-                            }
-                            outputStream.write(buffer, 0, length);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        e.printStackTrace();
-                    }
-                    finally
-                    {
-                        try
-                        {
-                            inputStream.close();
-                        }
-                        catch (IOException e)
-                        {
-                            e.printStackTrace();
-                        }
-                    }
-                };
-
-                client.getEntriesClient()
-                        .exportDocument(repositoryId, entryIdToDownload, null, consumer)
-                        .join();
-                count++;
+                    download(subEntries, j, client, repositoryId);
+                    System.out.println("fold");
+                }
             }
-            client.close();
+
+            else
+            {
+                download(entries, i, client, repositoryId);
+                System.out.println("doc");
+            }
         }
+        client.close();
+    }
+
+    public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID)
+    {
+        int entryIdToDownload = en.get(n).getId();
+        String FILE_NAME = en.get(n).getName();
+        Consumer<InputStream> consumer = inputStream ->
+        {
+            File exportedFile = new File(FILE_NAME);
+            try (FileOutputStream outputStream = new FileOutputStream(exportedFile))
+            {
+                byte[] buffer = new byte[1024];
+                while (true)
+                {
+                    int length = inputStream.read(buffer);
+                    if (length == -1)
+                    {
+                        break;
+                    }
+                    outputStream.write(buffer, 0, length);
+                }
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+            finally
+            {
+                try
+                {
+                    inputStream.close();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        cl.getEntriesClient()
+                .exportDocument(repID, entryIdToDownload, null, consumer)
+                .join();
+
     }
 }
