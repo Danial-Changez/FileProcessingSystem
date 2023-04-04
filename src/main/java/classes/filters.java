@@ -16,14 +16,6 @@ public class filters
 
     }
 
-    public void order()
-    {
-        String[] options = new String[]
-        {
-            "Name", "Length", "Content", "Count", "Split", "List", "Rename", "Print"
-        };
-    }
-
     public static List<File> renameFile(List<File> originalFileNames, String suffix)
     {
         int countFile = originalFileNames.size(); //counter for setting maximum bound in the for loop

@@ -5,6 +5,7 @@
  */
 package laserficheProjectEntries;
 
+import classes.filters;
 import com.laserfiche.api.client.model.AccessKey;
 import com.laserfiche.repository.api.RepositoryApiClient;
 import com.laserfiche.repository.api.RepositoryApiClientImpl;
@@ -12,6 +13,7 @@ import com.laserfiche.repository.api.clients.impl.model.Entry;
 import com.laserfiche.repository.api.clients.impl.model.ODataValueContextOfIListOfEntry;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -30,8 +32,123 @@ public class entriesProgram
 
     public static void main(String[] args)
     {
-        String path = "remote";
+        JSONParser parser = new JSONParser();
+        JSONArray processingElements;
+        JSONArray inputEntries;
+        JSONArray parameters;
 
+        try
+        {
+            Object obj = parser.parse(new FileReader("C:\\Users\\dania\\OneDrive\\Desktop\\Test Scenario.json"));
+            JSONObject jsonObj = (JSONObject) obj;
+
+            // Get the name
+            String name = (String) jsonObj.get("name");
+            System.out.println("Name: " + name);
+
+            // Get the processing elements array
+            processingElements = (JSONArray) jsonObj.get("processing_elements");
+
+            // Loop through each processing element
+            for (Object elem : processingElements)
+            {
+                JSONObject processingElement = (JSONObject) elem;
+
+                // Get the type of method
+                String type = (String) processingElement.get("type");
+                System.out.println("Type: " + type);
+
+                // Get the input entries array
+                inputEntries = (JSONArray) processingElement.get("input_entries");
+
+                // Loop through each input entry
+                for (Object entry : inputEntries)
+                {
+                    JSONObject inputEntry = (JSONObject) entry;
+
+                    // Get the type of input entry
+                    String inputType = (String) inputEntry.get("type");
+                    System.out.println("Input type: " + inputType);
+
+                    // Get the path (if it's a local input)
+                    if (inputType.equals("local"))
+                    {
+                        String path = (String) inputEntry.get("path");
+                        System.out.println("Path: " + path);
+                    }
+                }
+
+                // Get the parameters array
+                parameters = (JSONArray) processingElement.get("parameters");
+
+                // Loop through each parameter
+                for (Object param : parameters)
+                {
+                    JSONObject parameter = (JSONObject) param;
+
+                    // Get the name and value of the parameter
+                    String paramName = (String) parameter.get("name");
+                    String paramValue = (String) parameter.get("value");
+                    System.out.println("Parameter " + paramName + ": " + paramValue);
+                }
+            }
+        }
+        catch (IOException | ParseException e)
+        {
+            e.printStackTrace();
+        }
+//                switch(type) {
+//                    case "Name":
+//                        filter.Name(processingElements, type);
+//                        break;
+//                    case "Length":
+//                        filter.Length(processingElements, type);
+//                        break;
+//                    case "Content":
+//                        filter.Content(processingElements, type);
+//                        break;
+//                    case "Count":
+//                        filter.Count(processingElements, type);
+//                        break;
+//                    case "Split":
+//                        filter.Split(processingElements, type);
+//                        break;
+//                    case "List":
+//                        filter.List(processingElements, type);
+//                        break;
+//                    case "Rename":
+//                        filter.Rename(processingElements, type);
+//                        break;
+//                    case "Print":
+//                        filter.Print(processingElements, type);
+//                        break;
+//               }
+
+//                if (type.equals("List"))
+//                {
+//                    JSONArray inputEntries = (JSONArray) processingElement.get("input_entries");
+//                    String path = (String) ((JSONObject) inputEntries.get(0)).get("path");
+//
+//                    if (path.startsWith("http://") || path.startsWith("https://"))
+//                    {
+//                        // Call remote method
+//
+//                    }
+//                    else
+//                    {
+//                        // Use local files
+//                        useLocalFiles(processingElement);
+//                    }
+//                }
+//                else
+//                {
+//                    // Call other methods
+//                    callOtherMethod(processingElement);
+//                }
+    }
+
+    public static void remoteEntries()
+    {
         String servicePrincipalKey = "5V-BSOZ4ZRXSPiPMSOiW";
         String accessKeyBase64 = "ewoJImN1c3RvbWVySWQiOiAiMTQwMTM1OTIzOCIsCgkiY2xpZW50SWQiOiAiNDg2NTYxNWMtMjVlMS00ZmMyLTk4YWYtNzYyZGMzMWRlYTcwIiwKCSJkb21haW4iOiAibGFzZXJmaWNoZS5jYSIsCgkiandrIjogewoJCSJrdHkiOiAiRUMiLAoJCSJjcnYiOiAiUC0yNTYiLAoJCSJ1c2UiOiAic2lnIiwKCQkia2lkIjogIjAxZUNsTmhaYVB2QWY2LXdRcDh1amVQRnkyRGNybi12NXBDRXVFT3ZzaHciLAoJCSJ4IjogInZqUzBPUFZBTjRWWjlMU3JQbDQtWHVJZFpBcjR2SmZnOEI3ZFhlV3c1Qk0iLAoJCSJ5IjogIkdxaXBGUEFXdzBiX3pQQ3VKWHhyeFZod0FrWW9SVHJzekNBMDcxUWY2b3ciLAoJCSJkIjogIjFjT1JjamJrMmhnUWN0dnVWSGp0M1pzUHJZZHVKejRhYWFOemYwSS1KSXMiLAoJCSJpYXQiOiAxNjc3Mjk3NjM2Cgl9Cn0=";
         String repositoryId = "r-0001d410ba56";
@@ -46,7 +163,6 @@ public class entriesProgram
                 .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
 
         List<Entry> entries = result.getValue();
-        ArrayList<String> entriesString = new ArrayList<String>();
         boolean check = true;
 
         for (int i = 0; i < entries.size(); i++)
