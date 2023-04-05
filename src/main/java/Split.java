@@ -14,7 +14,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Split {
+public class Main {
 
     public static void main(String[] args) {
         // Example usage:
@@ -44,7 +44,7 @@ public class Split {
                         List<String> partLines = linesList.subList(start, end);
                         String partFileName = fileName + ".part" + (i + 1) + ".txt";
                         Path partFilePath = Paths.get(entry.getParent() != null ? entry.getParent() : "",
-                              partFileName);
+                                partFileName);
                         Files.write(partFilePath, partLines);
                         output.add(partFilePath.toFile());
                     }

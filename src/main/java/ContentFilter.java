@@ -11,7 +11,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContentFilter {
+public class Main {
     
     public static void main(String[] args) {
         // Example usage:
@@ -21,7 +21,7 @@ public class ContentFilter {
         String key = "key";
         List<File> output = filterEntries(entries, key);
         for (File file : output) {
-            System.out.println("List of emtries where key is present : " + file.getName());
+            System.out.println("List of entries where key is present : " + file.getName());
         }
     }
     
@@ -47,5 +47,12 @@ public class ContentFilter {
             System.err.println("Error reading file " + file.getAbsolutePath() + ": " + e.getMessage());
         }
         return false;
+    }
+
+    public static void filterFilesByKeyword(List<File> entries, String key) {
+        List<File> output = filterEntries(entries, key);
+        for (File file : output) {
+            System.out.println("List of entries where key is present : " + file.getName());
+        }
     }
 }

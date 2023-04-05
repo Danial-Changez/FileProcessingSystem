@@ -23,50 +23,43 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-
-public class CountFilter {
-
-  public static void main(String[] args) {
-    // Example usage:
-    List<File> entries = Arrays.asList(new File("file1.txt"));
-    List<File> filteredEntries = filterByCount(entries, "hello", 2);
-    for (File entry : filteredEntries) {
-      System.out.println(entry.getAbsolutePath());
-    }
-  }
-  
-  public static List<File> filterByCount(List<File> entries, String key, int min) {
-    List<File> filteredEntries = new ArrayList<>();
-
-    for (File entry : entries) {
-        if (entry.isFile()) {
-            try {
-                
-                String content = new String(Files.readAllBytes(entry.toPath()));
-                int count = countSubstring(content, key);
-                if (count >= min) {
-                    filteredEntries.add(entry);
-                    long fileSize = entry.length();
-                    System.out.println("File size of " + entry.getAbsolutePath() + " is " + fileSize + " bytes");
-                }
-                
-            } catch (IOException e) {
-                System.err.println("Error reading file " + entry.getAbsolutePath() + ": " + e.getMessage());
-            }
+public class Main {
+    public static void main(String[] args) {
+        // Example usage:
+        List<File> entries = Arrays.asList(new File("file1.txt"));
+        List<File> filteredEntries = filterByCount(entries, "hello", 2);
+        for (File entry : filteredEntries) {
+            System.out.println(entry.getAbsolutePath());
         }
     }
 
-    return filteredEntries;
-}
-
-  private static int countSubstring(String str, String subStr) {
-    int count = 0;
-    int index = 0;
-    while ((index = str.indexOf(subStr, index)) != -1) {
-      count++;
-      index += subStr.length();
+    public static List<File> filterByCount(List<File> entries, String key, int min) {
+        List<File> filteredEntries = new ArrayList<>();
+        for (File entry : entries) {
+            if (entry.isFile()) {
+                try {
+                    String content = new String(Files.readAllBytes(entry.toPath()));
+                    int count = countSubstring(content, key);
+                    if (count >= min) {
+                        filteredEntries.add(entry);
+                        long fileSize = entry.length();
+                        System.out.println("File size of " + entry.getAbsolutePath() + " is " + fileSize + " bytes");
+                    }
+                } catch (IOException e) {
+                    System.err.println("Error reading file " + entry.getAbsolutePath() + ": " + e.getMessage());
+                }
+            }
+        }
+        return filteredEntries;
     }
-    return count;
-  }
 
+    private static int countSubstring(String str, String subStr) {
+        int count = 0;
+        int index = 0;
+        while ((index = str.indexOf(subStr, index)) != -1) {
+            count++;
+            index += subStr.length();
+        }
+        return count;
+    }
 }
