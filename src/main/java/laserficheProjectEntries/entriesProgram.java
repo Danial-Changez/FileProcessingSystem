@@ -114,7 +114,7 @@ public class entriesProgram
 
                         case "Content":
                             Key = paramValue;
-                            entries = filter.Content(entries, Key);
+                            //entries = filter.Content(entries, Key);
                             break;
 
                         case "Count":
@@ -123,12 +123,11 @@ public class entriesProgram
                             {
                                 Key = paramValue;
                             }
-
                             else
                             {
                                 Min = Integer.parseInt(paramValue);
                             }
-                            entries = filter.Count(entries, Key, Min);
+                            //entries = filter.Count(entries, Key, Min);
                             break;
 
                         case "Split":
@@ -138,15 +137,15 @@ public class entriesProgram
 
                         case "List":
                             int Max = Integer.parseInt(paramValue);
-                            entries = filter.List(entries, Max);
+                            //entries = filter.List(entries, Max);
                             break;
 
                         case "Rename":
                             String suffix = paramValue;
-                            entries = filter.renameFile(entries, suffix);
+                            //entries = filter.renameFile(entries, suffix);
 
                         case "Print":
-                            filter.print(entries);
+                            //filter.print(entries);
                             break;
                     }
                 }
@@ -164,6 +163,7 @@ public class entriesProgram
         ArrayList<String> output = new ArrayList<String>();
         if (inType.equals("local"))
         {
+            
             File rootFolder = new File(path);
             File[] rootFiles = rootFolder.listFiles();
 
@@ -172,7 +172,6 @@ public class entriesProgram
                 output.add(root.toString());
             }
         }
-
         else
         {
             String servicePrincipalKey = "5V-BSOZ4ZRXSPiPMSOiW";
@@ -194,7 +193,7 @@ public class entriesProgram
                 System.out.println(
                         String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
                                 entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
-                param.add(entries.get(i).getName());
+                output.add(entries.get(i).getName());
 
                 String folderName = entries.get(i).getName();
                 File outputDirectory = new File(folderName);
@@ -279,4 +278,6 @@ public class entriesProgram
                 .exportDocument(repID, entryIdToDownload, null, consumer)
                 .join();
     }
+    
+    
 }
