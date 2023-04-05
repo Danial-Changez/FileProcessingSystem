@@ -2,6 +2,10 @@ package classes;
 
 import java.util.ArrayList;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,7 +29,7 @@ public class filters
         String newFileName; //string used to store the new filer name after appending the suffix string
 
         for (int i = 0; i < countFile - 1; i++)
-        { // loop ro itterate through the array list containing the original file names
+        { // loop to itterate through the array list containing the original file names
             fileName = originalFileNames.get(i).getName();// applying the getName() method in the File library
             dotIndex = fileName.lastIndexOf('.'); //saves the last position of the "." character into the dotindex variable
             newFileName = fileName.substring(0, dotIndex) + suffix + fileName.substring(dotIndex); //using the substring() method to concatenate the suffix string before the ".txt"
@@ -41,7 +45,9 @@ public class filters
         for (int i = 0; i < entry.size(); i++)
         {
             if (entry.get(i).contains(Key))
+            {
                 output.add(entry.get(i));
+            }
         }
         return output;
     }
@@ -86,7 +92,30 @@ public class filters
         return output;
     }
 
-    //Need to adjust
+    public ArrayList<String> Content(ArrayList<String> entries, String key)
+    {
+        ArrayList<String> output = new ArrayList<>();
+        for (String entry : entries)
+        {
+            File checkFile = new File(entry);
+            try
+            {
+                Path path = Paths.get(entry);
+                String fileContent = Files.readString(path);
+
+                if (checkFile.isFile() && fileContent.contains(key))
+                {
+                    output.add(entry);
+                }
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+        return output;
+    }
+
     public ArrayList<String> List(ArrayList<String> entry, int Max)
     {
         ArrayList<String> output = new ArrayList<String>();
@@ -95,24 +124,71 @@ public class filters
             File directory = new File(entry.get(i));
             if (directory.isDirectory())
             {
-                List<String> filesList = Arrays.asList(directory.listFiles());
-                for (int j = 0; j < Max; j++)
-                    output.add(filesList.get(j));
+                int run = Max;
+                List<File> filesList = Arrays.asList(directory.listFiles());
+
+                if (filesList.size() < Max)
+                {
+                    run = filesList.size();
+                }
+                for (int j = 0; j < run; j++)
+                {
+                    output.add(filesList.get(j).toString());
+                }
             }
         }
         return output;
     }
 
-    public static void print(List<File> renamedFiles)
+    public static ArrayList<String> Count(ArrayList<String> entries, String key, int min)
+    {
+        ArrayList<String> filteredEntries = new ArrayList<>();
+        for (String entry : entries)
+        {
+            File checkFile = new File(entry);
+            if (checkFile.isFile())
+            {
+                try
+                {
+                    Path path = Paths.get(entry);
+                    String content = new String(Files.readString(path));
+                    int count = countSubstring(content, key);
+                    if (count >= min)
+                    {
+                        filteredEntries.add(entry);
+                    }
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return filteredEntries;
+    }
+
+    private static int countSubstring(String str, String subStr)
+    {
+        int count = 0;
+        int index = 0;
+        while ((index = str.indexOf(subStr, index)) != -1)
+        {
+            count++;
+            index += subStr.length();
+        }
+        return count;
+    }
+
+    public void print(ArrayList<String> renamedFiles)
     {
         int countFile = renamedFiles.size(); //counter for setting maximum bound in the for loop
         for (int i = 0; i < countFile - 1; i++)
         { // loop ro itterate through the array list containing the renamed file names
-
+            File file = new File(renamedFiles.get(i));
             System.out.println();
-            System.out.println("Name: " + renamedFiles.get(i).getName()); //printing the new fileName
-            System.out.println("Length: " + renamedFiles.get(i).length()); //printing the length of the file at index i of the  renamedFiles arraylist
-            System.out.println("Absolute Path: " + renamedFiles.get(i).getAbsolutePath()); //printing the path of the renamedFiles entity at index i (shoul dbe the same path as the parent file)
+            System.out.println("Name: " + file.getName()); //printing the new fileName
+            System.out.println("Length: " + file.length()); //printing the length of the file at index i of the  renamedFiles arraylist
+            System.out.println("Absolute Path: " + file.getAbsolutePath()); //printing the path of the renamedFiles entity at index i (shoul dbe the same path as the parent file)
             System.out.println();//printing newline to make the output more clear
         }
     }

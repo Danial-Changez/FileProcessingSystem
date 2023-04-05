@@ -29,7 +29,6 @@ import org.json.simple.parser.*;
  */
 public class entriesProgram
 {
-
     public static void main(String[] args)
     {
         JSONParser parser = new JSONParser();
@@ -79,7 +78,7 @@ public class entriesProgram
 
                 // Get the parameters array
                 JSONArray parameters = (JSONArray) processingElement.get("parameters");
-                ArrayList<String> entries = listOfEntries(repId, entryId, path);
+                ArrayList<String> entries = listOfEntries(repId, entryId, path, inputType);
                 // Loop through each parameter
                 for (Object param : parameters)
                 {
@@ -157,36 +156,26 @@ public class entriesProgram
         {
             e.printStackTrace();
         }
-
-//                if (type.equals("List"))
-//                {
-//                    JSONArray inputEntries = (JSONArray) processingElement.get("input_entries");
-//                    String path = (String) ((JSONObject) inputEntries.get(0)).get("path");
-//
-//                    if (path.startsWith("http://") || path.startsWith("https://"))
-//                    {
-//                        // Call remote method
-//
-//                    }
-//                    else
-//                    {
-//                        // Use local files
-//                        useLocalFiles(processingElement);
-//                    }
-//                }
-//                else
-//                {
-//                    // Call other methods
-//                    callOtherMethod(processingElement);
-//                }
     }
 
-    public static ArrayList<String> listOfEntries(String repositoryId, int rootEntryId, String path)
+    public static ArrayList<String> listOfEntries(String repositoryId, int rootEntryId, String path, String inType)
     {
         ArrayList<String> output = new ArrayList<String>();
-        if (path.equals("local"))
+        if (inType.equals("local"))
         {
-
+            File root = new File(path);
+            if (root.isDirectory())
+            {
+                File[] rootContents = root.listFiles();
+                for (File element : rootContents)
+                {
+                    output.add(element.toString());
+                }
+            }
+            else
+            {
+                output.add(root.toString());
+            }
         }
 
         else
@@ -210,7 +199,7 @@ public class entriesProgram
                 System.out.println(
                         String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
                                 entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
-                param.add(entries.get(i).getName());
+                output.add(entries.get(i).getName());
 
                 String folderName = entries.get(i).getName();
                 File outputDirectory = new File(folderName);
@@ -226,15 +215,12 @@ public class entriesProgram
                     for (int j = 0; j < subEntries.size(); j++)
                     {
                         download(subEntries, j, client, repositoryId, outputDirectory, check);
-                        System.out.println("fold");
                     }
                 }
-
                 else
                 {
                     check = false;
                     download(entries, i, client, repositoryId, outputDirectory, check);
-                    System.out.println("doc");
                 }
             }
             client.close();
