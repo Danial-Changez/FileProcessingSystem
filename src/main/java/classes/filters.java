@@ -16,10 +16,10 @@ public class filters
 
     }
 
-    public static List<File> renameFile(List<File> originalFileNames, String suffix)
+    public static ArrayList<File> renameFile(List<File> originalFileNames, String suffix)
     {
         int countFile = originalFileNames.size(); //counter for setting maximum bound in the for loop
-        List<File> renamedFiles = new ArrayList<>(); //array list for the new file names after appending the suffix string
+        ArrayList<File> renamedFiles = new ArrayList<>(); //array list for the new file names after appending the suffix string
         String fileName; //string to store the current file name while itterating through the loop
         int dotIndex; //variable used to store the index of the "." in the filename string
         String newFileName; //string used to store the new filer name after appending the suffix string
@@ -35,9 +35,9 @@ public class filters
         return renamedFiles; // returning renamedFiles list
     }
 
-    public List<String> Name(ArrayList<String> entry, String Key)
+    public ArrayList<String> Name(ArrayList<String> entry, String Key)
     {
-        List<String> output = new ArrayList<String>();
+        ArrayList<String> output = new ArrayList<String>();
         for (int i = 0; i < entry.size(); i++)
         {
             if (entry.get(i).contains(Key))
@@ -46,9 +46,9 @@ public class filters
         return output;
     }
 
-    public List<String> Length(ArrayList<String> entry, long Length, String Operator)
+    public ArrayList<String> Length(ArrayList<String> entry, long Length, String Operator)
     {
-        List<String> output = new ArrayList<String>();
+        ArrayList<String> output = new ArrayList<String>();
         for (int i = 0; i < entry.size(); i++)
         {
             File file = new File(entry.get(i));
@@ -86,15 +86,16 @@ public class filters
         return output;
     }
 
-    public List<File> List(ArrayList<String> entry, int Max)
+    //Need to adjust
+    public ArrayList<String> List(ArrayList<String> entry, int Max)
     {
-        List<File> output = new ArrayList<File>();
+        ArrayList<String> output = new ArrayList<String>();
         for (int i = 0; i < entry.size(); i++)
         {
             File directory = new File(entry.get(i));
             if (directory.isDirectory())
             {
-                List<File> filesList = Arrays.asList(directory.listFiles());
+                List<String> filesList = Arrays.asList(directory.listFiles());
                 for (int j = 0; j < Max; j++)
                     output.add(filesList.get(j));
             }

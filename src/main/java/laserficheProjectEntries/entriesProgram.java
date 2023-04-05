@@ -33,21 +33,18 @@ public class entriesProgram
     public static void main(String[] args)
     {
         JSONParser parser = new JSONParser();
-        JSONArray processingElements;
-        JSONArray inputEntries;
-        JSONArray parameters;
+        filters filter = new filters();
+        String repId = "";
+        String entryId = "";
+        String path = "";
 
         try
         {
             Object obj = parser.parse(new FileReader("C:\\Users\\dania\\OneDrive\\Desktop\\Test Scenario.json"));
             JSONObject jsonObj = (JSONObject) obj;
 
-            // Get the name
-            String name = (String) jsonObj.get("name");
-            System.out.println("Name: " + name);
-
             // Get the processing elements array
-            processingElements = (JSONArray) jsonObj.get("processing_elements");
+            JSONArray processingElements = (JSONArray) jsonObj.get("processing_elements");
 
             // Loop through each processing element
             for (Object elem : processingElements)
@@ -59,28 +56,31 @@ public class entriesProgram
                 System.out.println("Type: " + type);
 
                 // Get the input entries array
-                inputEntries = (JSONArray) processingElement.get("input_entries");
+                JSONArray inputEntries = (JSONArray) processingElement.get("input_entries");
 
                 // Loop through each input entry
-                for (Object entry : inputEntries)
+                JSONObject inputEntry = (JSONObject) inputEntries.get(0);
+
+                // Get the type of input entry
+                String inputType = (String) inputEntry.get("type");
+
+                // Get the path (if it's a local input)
+                if (inputType.equals("local"))
                 {
-                    JSONObject inputEntry = (JSONObject) entry;
+                    path = (String) inputEntry.get("path");
+                    System.out.println("Path: " + path);
+                }
 
-                    // Get the type of input entry
-                    String inputType = (String) inputEntry.get("type");
-                    System.out.println("Input type: " + inputType);
-
-                    // Get the path (if it's a local input)
-                    if (inputType.equals("local"))
-                    {
-                        String path = (String) inputEntry.get("path");
-                        System.out.println("Path: " + path);
-                    }
+                //Get repositoryId and entryId (if it's a remote input)
+                else
+                {
+                    repId = (String) inputEntry.get("repositoryId");
+                    entryId = (String) inputEntry.get("entryId");
                 }
 
                 // Get the parameters array
-                parameters = (JSONArray) processingElement.get("parameters");
-
+                JSONArray parameters = (JSONArray) processingElement.get("parameters");
+                ArrayList<String> entries = listOfEntries(repId, entryId);
                 // Loop through each parameter
                 for (Object param : parameters)
                 {
@@ -89,40 +89,75 @@ public class entriesProgram
                     // Get the name and value of the parameter
                     String paramName = (String) parameter.get("name");
                     String paramValue = (String) parameter.get("value");
-                    System.out.println("Parameter " + paramName + ": " + paramValue);
+
+                    switch (type)
+                    {
+                        case "Name":
+                            String Key = paramValue;
+                            entries = filter.Name(entries, Key);
+                            break;
+
+                        case "Length":
+                            int len = 0;
+                            String Operator = "";
+
+                            if (paramName.equals("Length"))
+                            {
+                                len = Integer.parseInt(paramValue);
+                            }
+                            else
+                            {
+                                Operator = paramValue;
+                            }
+
+                            entries = filter.Length(entries, len, Operator);
+                            break;
+
+                        case "Content":
+                            Key = paramValue;
+                            entries = filter.Content(entries, Key);
+                            break;
+
+                        case "Count":
+                            int Min = 0;
+                            if (paramName.equals("Key"))
+                            {
+                                Key = paramValue;
+                            }
+
+                            else
+                            {
+                                Min = Integer.parseInt(paramValue);
+                            }
+                            entries = filter.Count(entries, Key, Min);
+                            break;
+
+                        case "Split":
+                            int Lines = Integer.parseInt(paramValue);
+                            entries = filter.Split(entries, Lines);
+                            break;
+
+                        case "List":
+                            int Max = Integer.parseInt(paramValue);
+                            entries = filter.List(entries, Max);
+                            break;
+
+                        case "Rename":
+                            String suffix = paramValue;
+                            entries = filter.renameFile(entries, suffix);
+
+                        case "Print":
+                            filter.print(entries);
+                            break;
+                    }
                 }
             }
         }
+
         catch (IOException | ParseException e)
         {
             e.printStackTrace();
         }
-//                switch(type) {
-//                    case "Name":
-//                        filter.Name(processingElements, type);
-//                        break;
-//                    case "Length":
-//                        filter.Length(processingElements, type);
-//                        break;
-//                    case "Content":
-//                        filter.Content(processingElements, type);
-//                        break;
-//                    case "Count":
-//                        filter.Count(processingElements, type);
-//                        break;
-//                    case "Split":
-//                        filter.Split(processingElements, type);
-//                        break;
-//                    case "List":
-//                        filter.List(processingElements, type);
-//                        break;
-//                    case "Rename":
-//                        filter.Rename(processingElements, type);
-//                        break;
-//                    case "Print":
-//                        filter.Print(processingElements, type);
-//                        break;
-//               }
 
 //                if (type.equals("List"))
 //                {
@@ -147,22 +182,21 @@ public class entriesProgram
 //                }
     }
 
-    public static void remoteEntries()
+    public static ArrayList<String> listOfEntries(String repositoryId, String rootEntryId)
     {
         String servicePrincipalKey = "5V-BSOZ4ZRXSPiPMSOiW";
         String accessKeyBase64 = "ewoJImN1c3RvbWVySWQiOiAiMTQwMTM1OTIzOCIsCgkiY2xpZW50SWQiOiAiNDg2NTYxNWMtMjVlMS00ZmMyLTk4YWYtNzYyZGMzMWRlYTcwIiwKCSJkb21haW4iOiAibGFzZXJmaWNoZS5jYSIsCgkiandrIjogewoJCSJrdHkiOiAiRUMiLAoJCSJjcnYiOiAiUC0yNTYiLAoJCSJ1c2UiOiAic2lnIiwKCQkia2lkIjogIjAxZUNsTmhaYVB2QWY2LXdRcDh1amVQRnkyRGNybi12NXBDRXVFT3ZzaHciLAoJCSJ4IjogInZqUzBPUFZBTjRWWjlMU3JQbDQtWHVJZFpBcjR2SmZnOEI3ZFhlV3c1Qk0iLAoJCSJ5IjogIkdxaXBGUEFXdzBiX3pQQ3VKWHhyeFZod0FrWW9SVHJzekNBMDcxUWY2b3ciLAoJCSJkIjogIjFjT1JjamJrMmhnUWN0dnVWSGp0M1pzUHJZZHVKejRhYWFOemYwSS1KSXMiLAoJCSJpYXQiOiAxNjc3Mjk3NjM2Cgl9Cn0=";
-        String repositoryId = "r-0001d410ba56";
         AccessKey accessKey = AccessKey.createFromBase64EncodedAccessKey(accessKeyBase64);
 
         RepositoryApiClient client = RepositoryApiClientImpl.createFromAccessKey(servicePrincipalKey, accessKey);
 
-        int rootEntryId = 1;
         Entry entry = client.getEntriesClient().getEntry(repositoryId, rootEntryId, null).join();
         ODataValueContextOfIListOfEntry result = client
                 .getEntriesClient()
                 .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
 
         List<Entry> entries = result.getValue();
+        ArrayList<String> param = new ArrayList<String>();
         boolean check = true;
 
         for (int i = 0; i < entries.size(); i++)
@@ -170,6 +204,7 @@ public class entriesProgram
             System.out.println(
                     String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
                             entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
+            param.add(entries.get(i).getName());
 
             String folderName = entries.get(i).getName();
             File outputDirectory = new File(folderName);
@@ -197,6 +232,7 @@ public class entriesProgram
             }
         }
         client.close();
+        return param;
     }
 
     public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID, File outDir, Boolean check)
