@@ -123,7 +123,7 @@ public class filters {
 //        return output;
 //    }
 
-    public static ArrayList<String> renameFiles(ArrayList<String> originalFileNames, String suffix) {
+    public static ArrayList<String> rename(ArrayList<String> originalFileNames, String suffix) {
         int countFile = originalFileNames.size(); // counter for setting maximum bound in the for loop
         ArrayList<String> renamedFiles = new ArrayList<>(); // array list for the new file names after appending the suffix string
         String fileName; // string to store the current file name while iterating through the loop
