@@ -35,7 +35,7 @@ public class entriesProgram
         JSONParser parser = new JSONParser();
         filters filter = new filters();
         String repId = "";
-        String entryId = "";
+        int entryId = 0;
         String path = "";
 
         try
@@ -68,19 +68,18 @@ public class entriesProgram
                 if (inputType.equals("local"))
                 {
                     path = (String) inputEntry.get("path");
-                    System.out.println("Path: " + path);
                 }
 
                 //Get repositoryId and entryId (if it's a remote input)
                 else
                 {
                     repId = (String) inputEntry.get("repositoryId");
-                    entryId = (String) inputEntry.get("entryId");
+                    entryId = (int) inputEntry.get("entryId");
                 }
 
                 // Get the parameters array
                 JSONArray parameters = (JSONArray) processingElement.get("parameters");
-                ArrayList<String> entries = listOfEntries(repId, entryId);
+                ArrayList<String> entries = listOfEntries(repId, entryId, path);
                 // Loop through each parameter
                 for (Object param : parameters)
                 {
@@ -182,57 +181,65 @@ public class entriesProgram
 //                }
     }
 
-    public static ArrayList<String> listOfEntries(String repositoryId, String rootEntryId)
+    public static ArrayList<String> listOfEntries(String repositoryId, int rootEntryId, String path)
     {
-        String servicePrincipalKey = "5V-BSOZ4ZRXSPiPMSOiW";
-        String accessKeyBase64 = "ewoJImN1c3RvbWVySWQiOiAiMTQwMTM1OTIzOCIsCgkiY2xpZW50SWQiOiAiNDg2NTYxNWMtMjVlMS00ZmMyLTk4YWYtNzYyZGMzMWRlYTcwIiwKCSJkb21haW4iOiAibGFzZXJmaWNoZS5jYSIsCgkiandrIjogewoJCSJrdHkiOiAiRUMiLAoJCSJjcnYiOiAiUC0yNTYiLAoJCSJ1c2UiOiAic2lnIiwKCQkia2lkIjogIjAxZUNsTmhaYVB2QWY2LXdRcDh1amVQRnkyRGNybi12NXBDRXVFT3ZzaHciLAoJCSJ4IjogInZqUzBPUFZBTjRWWjlMU3JQbDQtWHVJZFpBcjR2SmZnOEI3ZFhlV3c1Qk0iLAoJCSJ5IjogIkdxaXBGUEFXdzBiX3pQQ3VKWHhyeFZod0FrWW9SVHJzekNBMDcxUWY2b3ciLAoJCSJkIjogIjFjT1JjamJrMmhnUWN0dnVWSGp0M1pzUHJZZHVKejRhYWFOemYwSS1KSXMiLAoJCSJpYXQiOiAxNjc3Mjk3NjM2Cgl9Cn0=";
-        AccessKey accessKey = AccessKey.createFromBase64EncodedAccessKey(accessKeyBase64);
-
-        RepositoryApiClient client = RepositoryApiClientImpl.createFromAccessKey(servicePrincipalKey, accessKey);
-
-        Entry entry = client.getEntriesClient().getEntry(repositoryId, rootEntryId, null).join();
-        ODataValueContextOfIListOfEntry result = client
-                .getEntriesClient()
-                .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
-
-        List<Entry> entries = result.getValue();
-        ArrayList<String> param = new ArrayList<String>();
-        boolean check = true;
-
-        for (int i = 0; i < entries.size(); i++)
+        ArrayList<String> output = new ArrayList<String>();
+        if (path.equals("local"))
         {
-            System.out.println(
-                    String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
-                            entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
-            param.add(entries.get(i).getName());
 
-            String folderName = entries.get(i).getName();
-            File outputDirectory = new File(folderName);
-            outputDirectory.mkdir();
+        }
 
-            if (entries.get(i).getEntryType().toString().equals("Folder"))
+        else
+        {
+            String servicePrincipalKey = "5V-BSOZ4ZRXSPiPMSOiW";
+            String accessKeyBase64 = "ewoJImN1c3RvbWVySWQiOiAiMTQwMTM1OTIzOCIsCgkiY2xpZW50SWQiOiAiNDg2NTYxNWMtMjVlMS00ZmMyLTk4YWYtNzYyZGMzMWRlYTcwIiwKCSJkb21haW4iOiAibGFzZXJmaWNoZS5jYSIsCgkiandrIjogewoJCSJrdHkiOiAiRUMiLAoJCSJjcnYiOiAiUC0yNTYiLAoJCSJ1c2UiOiAic2lnIiwKCQkia2lkIjogIjAxZUNsTmhaYVB2QWY2LXdRcDh1amVQRnkyRGNybi12NXBDRXVFT3ZzaHciLAoJCSJ4IjogInZqUzBPUFZBTjRWWjlMU3JQbDQtWHVJZFpBcjR2SmZnOEI3ZFhlV3c1Qk0iLAoJCSJ5IjogIkdxaXBGUEFXdzBiX3pQQ3VKWHhyeFZod0FrWW9SVHJzekNBMDcxUWY2b3ciLAoJCSJkIjogIjFjT1JjamJrMmhnUWN0dnVWSGp0M1pzUHJZZHVKejRhYWFOemYwSS1KSXMiLAoJCSJpYXQiOiAxNjc3Mjk3NjM2Cgl9Cn0=";
+            AccessKey accessKey = AccessKey.createFromBase64EncodedAccessKey(accessKeyBase64);
+
+            RepositoryApiClient client = RepositoryApiClientImpl.createFromAccessKey(servicePrincipalKey, accessKey);
+
+            Entry entry = client.getEntriesClient().getEntry(repositoryId, rootEntryId, null).join();
+            ODataValueContextOfIListOfEntry result = client
+                    .getEntriesClient()
+                    .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
+
+            List<Entry> entries = result.getValue();
+            boolean check = true;
+
+            for (int i = 0; i < entries.size(); i++)
             {
-                ODataValueContextOfIListOfEntry val = client
-                        .getEntriesClient()
-                        .getEntryListing(repositoryId, entries.get(i).getId(), true, null, null, null, null, null, "name", null, null, null).join();
+                System.out.println(
+                        String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
+                                entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
+                param.add(entries.get(i).getName());
 
-                List<Entry> subEntries = val.getValue();
-                for (int j = 0; j < subEntries.size(); j++)
+                String folderName = entries.get(i).getName();
+                File outputDirectory = new File(folderName);
+                outputDirectory.mkdir();
+
+                if (entries.get(i).getEntryType().toString().equals("Folder"))
                 {
-                    download(subEntries, j, client, repositoryId, outputDirectory, check);
-                    System.out.println("fold");
+                    ODataValueContextOfIListOfEntry val = client
+                            .getEntriesClient()
+                            .getEntryListing(repositoryId, entries.get(i).getId(), true, null, null, null, null, null, "name", null, null, null).join();
+
+                    List<Entry> subEntries = val.getValue();
+                    for (int j = 0; j < subEntries.size(); j++)
+                    {
+                        download(subEntries, j, client, repositoryId, outputDirectory, check);
+                        System.out.println("fold");
+                    }
+                }
+
+                else
+                {
+                    check = false;
+                    download(entries, i, client, repositoryId, outputDirectory, check);
+                    System.out.println("doc");
                 }
             }
-
-            else
-            {
-                check = false;
-                download(entries, i, client, repositoryId, outputDirectory, check);
-                System.out.println("doc");
-            }
+            client.close();
         }
-        client.close();
-        return param;
+        return output;
     }
 
     public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID, File outDir, Boolean check)
