@@ -79,7 +79,7 @@ public class entriesProgram
 
                 // Get the parameters array
                 JSONArray parameters = (JSONArray) processingElement.get("parameters");
-                ArrayList<String> entries = listOfEntries(repId, entryId, path);
+                ArrayList<String> entries = listOfEntries(repId, entryId, path, inputType);
                 // Loop through each parameter
                 for (Object param : parameters)
                 {
@@ -157,36 +157,20 @@ public class entriesProgram
         {
             e.printStackTrace();
         }
-
-//                if (type.equals("List"))
-//                {
-//                    JSONArray inputEntries = (JSONArray) processingElement.get("input_entries");
-//                    String path = (String) ((JSONObject) inputEntries.get(0)).get("path");
-//
-//                    if (path.startsWith("http://") || path.startsWith("https://"))
-//                    {
-//                        // Call remote method
-//
-//                    }
-//                    else
-//                    {
-//                        // Use local files
-//                        useLocalFiles(processingElement);
-//                    }
-//                }
-//                else
-//                {
-//                    // Call other methods
-//                    callOtherMethod(processingElement);
-//                }
     }
 
-    public static ArrayList<String> listOfEntries(String repositoryId, int rootEntryId, String path)
+    public static ArrayList<String> listOfEntries(String repositoryId, int rootEntryId, String path, String inType)
     {
         ArrayList<String> output = new ArrayList<String>();
-        if (path.equals("local"))
+        if (inType.equals("local"))
         {
+            File rootFolder = new File(path);
+            File[] rootFiles = rootFolder.listFiles();
 
+            for (File root : rootFiles)
+            {
+                output.add(root.toString());
+            }
         }
 
         else
