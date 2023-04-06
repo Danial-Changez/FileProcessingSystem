@@ -18,30 +18,6 @@ import java.util.List;
  */
 public class filters
 {
-    public static void main(String[] args)
-    {
-
-    }
-
-    public static ArrayList<File> renameFile(List<File> originalFileNames, String suffix)
-    {
-        int countFile = originalFileNames.size(); //counter for setting maximum bound in the for loop
-        ArrayList<File> renamedFiles = new ArrayList<>(); //array list for the new file names after appending the suffix string
-        String fileName; //string to store the current file name while itterating through the loop
-        int dotIndex; //variable used to store the index of the "." in the filename string
-        String newFileName; //string used to store the new filer name after appending the suffix string
-
-        for (int i = 0; i < countFile - 1; i++)
-        { // loop to itterate through the array list containing the original file names
-            fileName = originalFileNames.get(i).getName();// applying the getName() method in the File library
-            dotIndex = fileName.lastIndexOf('.'); //saves the last position of the "." character into the dotindex variable
-            newFileName = fileName.substring(0, dotIndex) + suffix + fileName.substring(dotIndex); //using the substring() method to concatenate the suffix string before the ".txt"
-            File renamedFile = new File(originalFileNames.get(i).getParent(), newFileName); //using the getParent() method to set the path of the original file to the new renamed file
-            renamedFiles.add(renamedFile); // adding the renamed file into the renamedFiles list
-        }
-        return renamedFiles; // returning renamedFiles list
-    }
-
     public ArrayList<String> Name(ArrayList<String> entry, String Key)
     {
         ArrayList<String> output = new ArrayList<String>();
@@ -98,17 +74,20 @@ public class filters
     public ArrayList<String> Content(ArrayList<String> entries, String key)
     {
         ArrayList<String> output = new ArrayList<>();
+
         for (String entry : entries)
         {
-            File checkFile = new File(entry);
-            try
+            try (BufferedReader br = new BufferedReader(new FileReader(entry)))
             {
-                Path path = Paths.get(entry);
-                String fileContent = Files.readString(path);
+                String line;
 
-                if (checkFile.isFile() && fileContent.contains(key))
+                while ((line = br.readLine()) != null)
                 {
-                    output.add(entry);
+                    if (line.contains(key))
+                    {
+                        output.add(entry);
+                        break;
+                    }
                 }
             }
             catch (IOException e)
@@ -221,11 +200,9 @@ public class filters
                 ex.printStackTrace();
             }
         }
-        // return the list of generated files
         return result;
     }
 
-    //Causing java.lang.StringIndexOutOfBoundsException
     public static ArrayList<String> Rename(ArrayList<String> originalFileNames, String suffix)
     {
         int countFile = originalFileNames.size(); // counter for setting maximum bound in the for loop

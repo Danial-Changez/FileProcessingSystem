@@ -32,6 +32,7 @@ public class entriesProgram
 {
     public static void main(String[] args)
     {
+        ArrayList<String> entries = new ArrayList<String>();
         JSONParser parser = new JSONParser();
         JSONArray inputEntries;
         JSONObject inputEntry;
@@ -61,10 +62,7 @@ public class entriesProgram
 
                 // Get the type of method
                 String type = (String) processingElement.get("type");
-                System.out.println("Type: " + type);
 
-//            System.out.println("Number of entries in inputEntries array: " + inputEntries.size());
-//            System.out.println("Entry in inputEntries array: " + inputEntry);
                 // Get the type of input entry
                 if (i == 0)
                 {
@@ -85,10 +83,10 @@ public class entriesProgram
                         repId = (String) inputEntry.get("repositoryId");
                         entryId = (int) inputEntry.get("entryId");
                     }
+                    entries = listOfEntries(repId, entryId, path, inputType);
                 }
                 // Get the parameters array
                 JSONArray parameters = (JSONArray) processingElement.get("parameters");
-                ArrayList<String> entries = listOfEntries(repId, entryId, path, inputType);
 
                 // Loop through each parameter
                 for (Object param : parameters)
@@ -98,8 +96,6 @@ public class entriesProgram
                     // Get the name and value of the parameter
                     String paramName = (String) parameter.get("name");
                     String paramValue = (String) parameter.get("value");
-                    System.out.println("paramName: " + paramName);
-                    System.out.println("paramValue: " + paramValue);
 
                     switch (paramName)
                     {
@@ -130,7 +126,6 @@ public class entriesProgram
                             Lines = Integer.parseInt(paramValue);
                             break;
                     }
-
                 }
 
                 switch (type)
