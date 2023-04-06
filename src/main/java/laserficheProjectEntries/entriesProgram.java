@@ -35,8 +35,14 @@ public class entriesProgram
         JSONParser parser = new JSONParser();
         filters filter = new filters();
         String repId = "";
-        int entryId = 0;
+        String inputType = "";
         String path = "";
+        String Operator = "";
+        String suffix = "";
+        String Key = "";
+        int entryId = 0;
+        int len = 0;
+        int Min = 0;
 
         try
         {
@@ -45,111 +51,106 @@ public class entriesProgram
 
             // Get the processing elements array
             JSONArray processingElements = (JSONArray) jsonObj.get("processing_elements");
+            JSONObject processingElement = (JSONObject) processingElements.get(0);
 
-            // Loop through each processing element
-            for (Object elem : processingElements)
+            // Get the type of method
+            String type = (String) processingElement.get("type");
+            System.out.println("Type: " + type);
+
+            // Get the input entries
+            JSONArray inputEntries = (JSONArray) processingElement.get("input_entries");
+            JSONObject inputEntry = (JSONObject) inputEntries.get(0);
+
+//            System.out.println("Number of entries in inputEntries array: " + inputEntries.size());
+//            System.out.println("Entry in inputEntries array: " + inputEntry);
+            // Get the type of input entry
+            inputType = (String) inputEntry.get("type");
+
+            // Get the path (if it's a local input)
+            if (inputType.equals("local"))
             {
-                JSONObject processingElement = (JSONObject) elem;
+                path = (String) inputEntry.get("path");
+            }
 
-                // Get the type of method
-                String type = (String) processingElement.get("type");
-                System.out.println("Type: " + type);
+            //Get repositoryId and entryId (if it's a remote input)
+            else
+            {
+                repId = (String) inputEntry.get("repositoryId");
+                entryId = (int) inputEntry.get("entryId");
+            }
+            // Get the parameters array
+            JSONArray parameters = (JSONArray) processingElement.get("parameters");
+            ArrayList<String> entries = listOfEntries(repId, entryId, path, inputType);
 
-                // Get the input entries array
-                JSONArray inputEntries = (JSONArray) processingElement.get("input_entries");
+            // Loop through each parameter
+            for (Object param : parameters)
+            {
+                type = (String) processingElement.get("type");
+                JSONObject parameter = (JSONObject) param;
 
-                // Loop through each input entry
-                JSONObject inputEntry = (JSONObject) inputEntries.get(0);
+                // Get the name and value of the parameter
+                String paramName = (String) parameter.get("name");
+                String paramValue = (String) parameter.get("value");
+                System.out.println("paramName: " + paramName);
+                System.out.println("paramValue: " + paramValue);
 
-                // Get the type of input entry
-                String inputType = (String) inputEntry.get("type");
-
-                // Get the path (if it's a local input)
-                if (inputType.equals("local"))
+                switch (paramName)
                 {
-                    path = (String) inputEntry.get("path");
+                    case "Length":
+                        len = Integer.parseInt(paramValue);
+                        break;
+
+                    case "Operator":
+                        Operator = paramValue;
+                        break;
+
+                    case "Key":
+                        Key = paramValue;
+                        break;
+
+                    case "Min":
+                        Min = Integer.parseInt(paramValue);
+                        break;
+
+                    case "Suffix":
+                        suffix = paramValue;
+                        break;
                 }
 
-                //Get repositoryId and entryId (if it's a remote input)
-                else
+                switch (type)
                 {
-                    repId = (String) inputEntry.get("repositoryId");
-                    entryId = (int) inputEntry.get("entryId");
-                }
+                    case "Name":
+                        entries = filter.Name(entries, Key);
+                        break;
 
-                // Get the parameters array
-                JSONArray parameters = (JSONArray) processingElement.get("parameters");
-                ArrayList<String> entries = listOfEntries(repId, entryId, path, inputType);
-                // Loop through each parameter
-                for (Object param : parameters)
-                {
-                    JSONObject parameter = (JSONObject) param;
+                    case "Length":
+                        entries = filter.Length(entries, len, Operator);
+                        break;
 
-                    // Get the name and value of the parameter
-                    String paramName = (String) parameter.get("name");
-                    String paramValue = (String) parameter.get("value");
+                    case "Content":
+                        entries = filter.Content(entries, Key);
+                        break;
 
-                    switch (type)
-                    {
-                        case "Name":
-                            String Key = paramValue;
-                            entries = filter.Name(entries, Key);
-                            break;
+                    case "Count":
+                        entries = filter.Count(entries, Key, Min);
+                        break;
 
-                        case "Length":
-                            int len = 0;
-                            String Operator = "";
+                    case "Split":
+                        entries = filter.Split(entries, Integer.parseInt(paramValue));
+                        break;
 
-                            if (paramName.equals("Length"))
-                            {
-                                len = Integer.parseInt(paramValue);
-                            }
-                            else
-                            {
-                                Operator = paramValue;
-                            }
+                    case "List":
+                        entries = filter.List(entries, Integer.parseInt(paramValue));
+                        System.out.println("Entries" + entries);
+                        break;
 
-                            entries = filter.Length(entries, len, Operator);
-                            break;
+                    case "Rename":
+                        entries = filter.Rename(entries, suffix);
+                        break;
 
-                        case "Content":
-                            Key = paramValue;
-                            entries = filter.Content(entries, Key);
-                            break;
-
-                        case "Count":
-                            int Min = 0;
-                            Key = "";
-                            if (paramName.equals("Key"))
-                            {
-                                Key = paramValue;
-                            }
-
-                            else
-                            {
-                                Min = Integer.parseInt(paramValue);
-                            }
-                            entries = filter.Count(entries, Key, Min);
-                            break;
-
-                        case "Split":
-                            int Lines = Integer.parseInt(paramValue);
-                            entries = filter.Split(entries, Lines);
-                            break;
-
-                        case "List":
-                            int Max = Integer.parseInt(paramValue);
-                            entries = filter.List(entries, Max);
-                            break;
-
-                        case "Rename":
-                            String suffix = paramValue;
-                            entries = filter.Rename(entries, suffix);
-
-                        case "Print":
-                            filter.print(entries, inputType, entryId);
-                            break;
-                    }
+                    case "Print":
+                        filter.print(entries, inputType, entryId);
+                        break;
                 }
             }
         }
