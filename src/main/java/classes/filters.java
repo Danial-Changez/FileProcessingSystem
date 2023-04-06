@@ -36,7 +36,7 @@ public class filters
 
     public ArrayList<File> Length(ArrayList<File> entries, long Length, String Operator)
     {
-        ArrayList<File> output = new ArrayList<File>(); // Create an ArrayList to store output files
+        ArrayList<File> output = new ArrayList<>(); // Create an ArrayList to store output files
         for (File entry : entries) // Loop through each entry in the input list
         {
             if (entry.isFile()) // Check if entry is a file (not a directory)
@@ -87,7 +87,7 @@ public class filters
 
     public ArrayList<File> Content(ArrayList<File> entries, String key)
     {
-        ArrayList<File> output = new ArrayList<File>();
+        ArrayList<File> output = new ArrayList<>();
 
         // Loop through each entry in the input list of entries
         for (File entry : entries)
@@ -119,7 +119,7 @@ public class filters
 
     public ArrayList<File> List(ArrayList<File> entries, int Max)
     {
-        ArrayList<File> output = new ArrayList<File>(); // Create an ArrayList to store the output
+        ArrayList<File> output = new ArrayList<>(); // Create an ArrayList to store the output
         for (File entry : entries)
         { // Loop through each entry in the input list
             if (entry.isDirectory())
@@ -140,7 +140,7 @@ public class filters
         return output; // Return the output list of selected entries from the directories
     }
 
-    public static ArrayList<File> Count(ArrayList<File> entries, String key, int min)
+    public ArrayList<File> Count(ArrayList<File> entries, String key, int min)
     {
         ArrayList<File> filteredEntries = new ArrayList<>();
 
@@ -201,25 +201,29 @@ public class filters
                 // ignore directories
                 continue;
             }
-            try
+            try (BufferedReader reader = new BufferedReader(new FileReader(entry))) // Create a BufferedReader to read from the input file
             {
-                BufferedReader reader = new BufferedReader(new FileReader(entry)); // Create a BufferedReader to read from the input file
                 int partNumber = 1;
                 String line = reader.readLine(); // Read the first line from the input file
 
                 while (line != null)
                 {
                     String partName = entry.getName() + ".part" + partNumber + ".txt";
-                    FileWriter writer = new FileWriter(partName);
-
                     // Write Lines number of lines to the current split file
-                    for (int i = 0; i < Lines && line != null; i++)
+                    try (FileWriter writer = new FileWriter(partName))
                     {
-                        writer.write(line + "\n"); // Write line to the current split file
-                        line = reader.readLine(); // Read the next line from the input file
+                        // Write Lines number of lines to the current split file
+                        for (int i = 0; i < Lines && line != null; i++)
+                        {
+                            writer.write(line + "\n"); // Write line to the current split file
+                            line = reader.readLine(); // Read the next line from the input file
+                        }
+                        // Close the FileWriter to flush and close the current split file
                     }
-
-                    writer.close(); // Close the FileWriter to flush and close the current split file
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                    }
                     result.add(new File(partName)); // Add the current split file to the result list
                     partNumber++;
                 }
@@ -233,7 +237,7 @@ public class filters
         return result;
     }
 
-    public static ArrayList<File> Rename(ArrayList<File> originalFiles, String suffix)
+    public ArrayList<File> Rename(ArrayList<File> originalFiles, String suffix)
     {
         ArrayList<File> renamedFiles = new ArrayList<>(); // list for the new file names after appending the suffix string
         for (File originalFile : originalFiles)

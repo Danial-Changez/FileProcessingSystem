@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package laserficheProjectEntries;
 
 import classes.filters;
@@ -17,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 import org.json.simple.JSONArray;
@@ -33,7 +29,7 @@ public class entriesProgram extends filters
     public static void main(String[] args)
     {
         // Declare and initialize variables
-        ArrayList<File> entries = new ArrayList<File>();
+        ArrayList<File> entries = new ArrayList<>();
         entriesProgram filter = new entriesProgram();
         JSONParser parser = new JSONParser();
         JSONArray inputEntries;
@@ -53,7 +49,7 @@ public class entriesProgram extends filters
         try
         {
             // Parse the JSON file
-            Object obj = parser.parse(new FileReader("C:\\Users\\dania\\OneDrive\\Desktop\\Test Scenario.json"));
+            Object obj = parser.parse(new FileReader("C:\\Users\\dania\\OneDrive\\Desktop\\Test Scenario (1).json"));
             JSONObject jsonObj = (JSONObject) obj;
 
             // Get the processing elements array
@@ -168,6 +164,17 @@ public class entriesProgram extends filters
         {
             delEn.delete();
         }
+
+        //Deleting all folders and files that were added after pulling from remote repository
+        if (inputType.equals("remote"))
+        {
+            entries = listOfEntries(repId, entryId, path, inputType);
+            for (int i = 0; i < entries.size(); i++)
+            {
+                entries.get(i).delete();
+                new File(entries.get(i).getName() + ".txt").delete();
+            }
+        }
     }
 
     /**
@@ -181,20 +188,19 @@ public class entriesProgram extends filters
      * @param path the path of the local directory (ignored if inType is not
      * "local")
      * @param inType the type of input, either "local" or "remote"
+     * @return an ArrayList of File objects that represent the list of entries
      */
     public static ArrayList<File> listOfEntries(String repositoryId, int rootEntryId, String path, String inType)
     {
-        ArrayList<File> output = new ArrayList<File>();
+        ArrayList<File> output = new ArrayList<>();
         if (inType.equals("local")) // if the input is a local directory
         {
             File root = new File(path);
             if (root.isDirectory()) // if the root file is a directory
             {
                 File[] rootContents = root.listFiles(); // get an array of all the files and directories within the root directory
-                for (File element : rootContents) // for each file or directory in the root directory
-                {
-                    output.add(element); // add it to the output ArrayList
-                }
+                output.addAll(Arrays.asList(rootContents)); // for each file or directory in the root directory
+                // add it to the output ArrayList
             }
             else // if the root file is a single file (not a directory)
             {
@@ -234,7 +240,7 @@ public class entriesProgram extends filters
                 if (entries.get(i).getEntryType().toString().equals("Document"))
                 {
                     // If it's a document, add a new file to the output list with the same name as the entry and ".txt" extension
-                    output.add(new File(entries.get(i).getName() + ".txt"));
+                    output.add(new File(entries.get(i).getName()));
                 }
                 else
                 {
