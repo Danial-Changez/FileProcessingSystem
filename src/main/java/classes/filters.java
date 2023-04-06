@@ -225,6 +225,7 @@ public class filters
         return result;
     }
 
+    //Causing java.lang.StringIndexOutOfBoundsException
     public static ArrayList<String> Rename(ArrayList<String> originalFileNames, String suffix)
     {
         int countFile = originalFileNames.size(); // counter for setting maximum bound in the for loop
