@@ -267,7 +267,7 @@ public class filters
                     List<File> subEntries = Arrays.asList(file.listFiles());
                     for (int j = 0; j < subEntries.size(); j++)
                     {
-                        size += subEntries.get(i).length();
+                        size += subEntries.get(j).length();
                     }
                     System.out.println("Length: " + size);
                 }
@@ -292,7 +292,7 @@ public class filters
                     List<File> subEntries = Arrays.asList(file.listFiles());
                     for (int j = 0; j < subEntries.size(); j++)
                     {
-                        size += subEntries.get(i).length();
+                        size += subEntries.get(j).length();
                     }
                     System.out.println("Length: " + size);
                 }

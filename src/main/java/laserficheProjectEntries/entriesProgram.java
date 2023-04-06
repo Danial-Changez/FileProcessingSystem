@@ -131,40 +131,41 @@ public class entriesProgram
                             break;
                     }
 
-                    switch (type)
-                    {
-                        case "Name":
-                            entries = filter.Name(entries, Key);
-                            break;
+                }
 
-                        case "Length":
-                            entries = filter.Length(entries, len, Operator);
-                            break;
+                switch (type)
+                {
+                    case "Name":
+                        entries = filter.Name(entries, Key);
+                        break;
 
-                        case "Content":
-                            entries = filter.Content(entries, Key);
-                            break;
+                    case "Length":
+                        entries = filter.Length(entries, len, Operator);
+                        break;
 
-                        case "Count":
-                            entries = filter.Count(entries, Key, Min);
-                            break;
+                    case "Content":
+                        entries = filter.Content(entries, Key);
+                        break;
 
-                        case "Split":
-                            entries = filter.Split(entries, Lines);
-                            break;
+                    case "Count":
+                        entries = filter.Count(entries, Key, Min);
+                        break;
 
-                        case "List":
-                            entries = filter.List(entries, Max);
-                            break;
+                    case "Split":
+                        entries = filter.Split(entries, Lines);
+                        break;
 
-                        case "Rename":
-                            entries = filter.Rename(entries, suffix);
-                            break;
+                    case "List":
+                        entries = filter.List(entries, Max);
+                        break;
 
-                        case "Print":
-                            filter.print(entries, inputType, entryId);
-                            break;
-                    }
+                    case "Rename":
+                        entries = filter.Rename(entries, suffix);
+                        break;
+
+                    case "Print":
+                        filter.print(entries, inputType, entryId);
+                        break;
                 }
             }
         }
