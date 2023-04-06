@@ -32,7 +32,7 @@ public class entriesProgram
 {
     public static void main(String[] args)
     {
-        ArrayList<String> entries = new ArrayList<String>();
+        ArrayList<File> entries = new ArrayList<File>();
         JSONParser parser = new JSONParser();
         JSONArray inputEntries;
         JSONObject inputEntry;
@@ -170,9 +170,9 @@ public class entriesProgram
         }
     }
 
-    public static ArrayList<String> listOfEntries(String repositoryId, int rootEntryId, String path, String inType)
+    public static ArrayList<File> listOfEntries(String repositoryId, int rootEntryId, String path, String inType)
     {
-        ArrayList<String> output = new ArrayList<String>();
+        ArrayList<File> output = new ArrayList<File>();
         if (inType.equals("local"))
         {
             File root = new File(path);
@@ -181,12 +181,12 @@ public class entriesProgram
                 File[] rootContents = root.listFiles();
                 for (File element : rootContents)
                 {
-                    output.add(element.toString());
+                    output.add(element);
                 }
             }
             else
             {
-                output.add(root.toString());
+                output.add(root);
             }
         }
 
@@ -211,7 +211,7 @@ public class entriesProgram
                 System.out.println(
                         String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
                                 entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
-                output.add(entries.get(i).getName());
+                output.add(new File(entries.get(i).getName()));
 
                 String folderName = entries.get(i).getName();
                 File outputDirectory = new File(folderName);
@@ -253,7 +253,6 @@ public class entriesProgram
             {
                 exportedFile = new File(outDir, FILE_NAME);
             }
-
             else
             {
                 exportedFile = new File(FILE_NAME);

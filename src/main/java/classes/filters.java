@@ -18,52 +18,52 @@ import java.util.List;
  */
 public class filters
 {
-    public ArrayList<String> Name(ArrayList<String> entry, String Key)
+    public ArrayList<File> Name(ArrayList<File> entries, String Key)
     {
-        ArrayList<String> output = new ArrayList<String>();
-        for (int i = 0; i < entry.size(); i++)
+        ArrayList<File> output = new ArrayList<File>();
+        for (File entry : entries)
         {
-            if (entry.get(i).contains(Key))
+//            entry.getName(i).contains(Key)
+            if (entry.getName().contains(Key))
             {
-                output.add(entry.get(i));
+                output.add(entry);
             }
         }
         return output;
     }
 
-    public ArrayList<String> Length(ArrayList<String> entry, long Length, String Operator)
+    public ArrayList<File> Length(ArrayList<File> entries, long Length, String Operator)
     {
-        ArrayList<String> output = new ArrayList<String>();
-        for (int i = 0; i < entry.size(); i++)
+        ArrayList<File> output = new ArrayList<File>();
+        for (File entry : entries)
         {
-            File file = new File(entry.get(i));
-            if (file.isFile())
+            if (entry.isFile())
             {
                 switch (Operator)
                 {
                     case "EQ":
-                        if (entry.get(i).length() == Length)
-                            output.add(entry.get(i));
+                        if (entry.length() == Length)
+                            output.add(entry);
                         break;
                     case "NEQ":
-                        if (entry.get(i).length() != Length)
-                            output.add(entry.get(i));
+                        if (entry.length() != Length)
+                            output.add(entry);
                         break;
                     case "GT":
-                        if (entry.get(i).length() > Length)
-                            output.add(entry.get(i));
+                        if (entry.length() > Length)
+                            output.add(entry);
                         break;
                     case "GTE":
-                        if (entry.get(i).length() >= Length)
-                            output.add(entry.get(i));
+                        if (entry.length() >= Length)
+                            output.add(entry);
                         break;
                     case "LT":
-                        if (entry.get(i).length() < Length)
-                            output.add(entry.get(i));
+                        if (entry.length() < Length)
+                            output.add(entry);
                         break;
                     case "LTE":
-                        if (entry.get(i).length() <= Length)
-                            output.add(entry.get(i));
+                        if (entry.length() <= Length)
+                            output.add(entry);
                         break;
                 }
             }
@@ -71,16 +71,15 @@ public class filters
         return output;
     }
 
-    public ArrayList<String> Content(ArrayList<String> entries, String key)
+    public ArrayList<File> Content(ArrayList<File> entries, String key)
     {
-        ArrayList<String> output = new ArrayList<>();
+        ArrayList<File> output = new ArrayList<File>();
 
-        for (String entry : entries)
+        for (File entry : entries)
         {
             try (BufferedReader br = new BufferedReader(new FileReader(entry)))
             {
                 String line;
-
                 while ((line = br.readLine()) != null)
                 {
                     if (line.contains(key))
@@ -98,42 +97,39 @@ public class filters
         return output;
     }
 
-    public ArrayList<String> List(ArrayList<String> entry, int Max)
+    public ArrayList<File> List(ArrayList<File> entries, int Max)
     {
-        ArrayList<String> output = new ArrayList<String>();
-        for (int i = 0; i < entry.size(); i++)
+        ArrayList<File> output = new ArrayList<File>();
+        for (File entry : entries)
         {
-            File directory = new File(entry.get(i));
-            if (directory.isDirectory())
+            if (entry.isDirectory())
             {
                 int run = Max;
-                List<File> filesList = Arrays.asList(directory.listFiles());
 
+                List<File> filesList = Arrays.asList(entry.listFiles());
                 if (filesList.size() < Max)
                 {
                     run = filesList.size();
                 }
                 for (int j = 0; j < run; j++)
                 {
-                    output.add(filesList.get(j).toString());
+                    output.add(filesList.get(j));
                 }
             }
         }
         return output;
     }
 
-    public static ArrayList<String> Count(ArrayList<String> entries, String key, int min)
+    public static ArrayList<File> Count(ArrayList<File> entries, String key, int min)
     {
-        ArrayList<String> filteredEntries = new ArrayList<>();
-        for (String entry : entries)
+        ArrayList<File> filteredEntries = new ArrayList<>();
+        for (File entry : entries)
         {
-            File checkFile = new File(entry);
-            if (checkFile.isFile())
+            if (entry.isFile())
             {
                 try
                 {
-                    Path path = Paths.get(entry);
-                    String content = new String(Files.readString(path));
+                    String content = new String(Files.readAllBytes(entry.toPath()));
                     int count = countSubstring(content, key);
                     if (count >= min)
                     {
@@ -161,13 +157,12 @@ public class filters
         return count;
     }
 
-    public ArrayList<String> Split(ArrayList<String> entry, int Lines)
+    public ArrayList<File> Split(ArrayList<File> entries, int Lines)
     {
-        ArrayList<String> result = new ArrayList<String>();
-        for (String e : entry)
+        ArrayList<File> result = new ArrayList<File>();
+        for (File entry : entries)
         {
-            File file = new File(e);
-            if (file.isDirectory())
+            if (entry.isDirectory())
             {
                 // ignore directories
                 continue;
@@ -175,13 +170,13 @@ public class filters
 
             try
             {
-                BufferedReader reader = new BufferedReader(new FileReader(file));
+                BufferedReader reader = new BufferedReader(new FileReader(entry));
                 int partNumber = 1;
                 String line = reader.readLine();
 
                 while (line != null)
                 {
-                    String partName = file.getName() + ".part" + partNumber + ".txt";
+                    String partName = entry.getName() + ".part" + partNumber + ".txt";
                     FileWriter writer = new FileWriter(partName);
 
                     for (int i = 0; i < Lines && line != null; i++)
@@ -190,7 +185,7 @@ public class filters
                         line = reader.readLine();
                     }
                     writer.close();
-                    result.add(partName);
+                    result.add(new File(partName));
                     partNumber++;
                 }
                 reader.close();
@@ -203,45 +198,44 @@ public class filters
         return result;
     }
 
-    public static ArrayList<String> Rename(ArrayList<String> originalFileNames, String suffix)
+    public static ArrayList<File> Rename(ArrayList<File> originalFiles, String suffix)
     {
-        int countFile = originalFileNames.size(); // counter for setting maximum bound in the for loop
-        ArrayList<String> renamedFiles = new ArrayList<>(); // array list for the new file names after appending the suffix string
-        String fileName; // string to store the current file name while iterating through the loop
-        int dotIndex; // variable used to store the index of the "." in the filename string
-        String newFileName; // string used to store the new file name after appending the suffix string
-        for (int i = 0; i < countFile; i++)
-        { // loop to iterate through the array list containing the original file names
-            fileName = originalFileNames.get(i); // get the current file name from the original file names list
-            File file = new File(fileName);
+        int countFile = originalFiles.size(); // counter for setting maximum bound in the for loop
+        ArrayList<File> renamedFiles = new ArrayList<File>(); // list for the new file names after appending the suffix string
 
+        for (int i = 0; i < countFile; i++)
+        { // loop to iterate through the list containing the original files
+            File file = originalFiles.get(i); // get the current file from the original files list
             if (file.isDirectory())
             {
-                newFileName = fileName + suffix; // using the substring() method to concatenate the suffix string before the ".txt"
+                String newFileName = file.getAbsolutePath() + suffix; // using the getAbsolutePath() method to get the file's absolute path and concatenate the suffix string
+                File newFile = new File(newFileName); // create a new file object with the new file name
+                renamedFiles.add(newFile); // adding the renamed file to the renamedFiles list
             }
             else
             {
-                dotIndex = fileName.lastIndexOf('.'); // saves the last position of the "." character into the dotIndex variable
-                newFileName = fileName.substring(0, dotIndex) + suffix + fileName.substring(dotIndex); // using the substring() method to concatenate the suffix string before the ".txt"
+                String fileName = file.getName(); // get the current file name from the file object
+                int dotIndex = fileName.lastIndexOf('.'); // saves the last position of the "." character into the dotIndex variable
+                String newFileName = fileName.substring(0, dotIndex) + suffix + fileName.substring(dotIndex); // using the substring() method to concatenate the suffix string before the file's extension
+                File newFile = new File(file.getParent(), newFileName); // create a new file object with the parent directory and the new file name
+                renamedFiles.add(newFile); // adding the renamed file to the renamedFiles list
             }
-            renamedFiles.add(newFileName); // adding the renamed file name into the renamedFiles list
         }
-        return renamedFiles; // returning renamedFiles list of type ArrayList<String>
+        return renamedFiles; // returning renamedFiles list of type List<File>
     }
 
-    public void print(ArrayList<String> renamedFiles, String inType, int enId)
+    public void print(ArrayList<File> renamedFiles, String inType, int enId)
     {
         int countFile = renamedFiles.size(); //counter for setting maximum bound in the for loop
         if (inType.equals("local"))
         {
             for (int i = 0; i < countFile; i++)
             {
-                File file = new File(renamedFiles.get(i));
-                System.out.println("Name: " + file.getName());
-                if (file.isDirectory())
+                System.out.println("Name: " + renamedFiles.get(i).getName());
+                if (renamedFiles.get(i).isDirectory())
                 {
                     int size = 0;
-                    List<File> subEntries = Arrays.asList(file.listFiles());
+                    List<File> subEntries = Arrays.asList(renamedFiles.get(i).listFiles());
                     for (int j = 0; j < subEntries.size(); j++)
                     {
                         size += subEntries.get(j).length();
@@ -250,9 +244,9 @@ public class filters
                 }
                 else
                 {
-                    System.out.println("Length " + file.length());
+                    System.out.println("Length " + renamedFiles.get(i).length());
                 }
-                System.out.println("Absolute Path: " + file.getPath());
+                System.out.println("Absolute Path: " + renamedFiles.get(i).getPath());
             }
         }
 
@@ -260,13 +254,12 @@ public class filters
         {
             for (int i = 0; i < countFile; i++)
             {
-                File file = new File(renamedFiles.get(i));
-                System.out.println("Name: " + file.getName());
+                System.out.println("Name: " + renamedFiles.get(i).getName());
                 System.out.println("EntryId: " + enId);
-                if (file.isDirectory())
+                if (renamedFiles.get(i).isDirectory())
                 {
                     int size = 0;
-                    List<File> subEntries = Arrays.asList(file.listFiles());
+                    List<File> subEntries = Arrays.asList(renamedFiles.get(i).listFiles());
                     for (int j = 0; j < subEntries.size(); j++)
                     {
                         size += subEntries.get(j).length();
@@ -275,9 +268,9 @@ public class filters
                 }
                 else
                 {
-                    System.out.println("Length " + file.length());
+                    System.out.println("Length " + renamedFiles.get(i).length());
                 }
-                System.out.println("Absolute Path: " + file.getPath());
+                System.out.println("Absolute Path: " + renamedFiles.get(i).getPath());
             }
         }
     }
