@@ -8,8 +8,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,10 +23,10 @@ public class filters
 {
     public ArrayList<File> Name(ArrayList<File> entries, String Key)
     {
-        ArrayList<File> output = new ArrayList<File>(); // Create an ArrayList to store output files
+        ArrayList<File> output = new ArrayList<>(); // Create an ArrayList to store output files
         for (File entry : entries) // Loop through each entry in the input list
         {
-            if (entry.getName().contains(Key)) // Check if entry's name contains the given Key
+            if (entry.getName().toLowerCase().contains(Key.toLowerCase())) // Check if entry's name contains the given Key
             {
                 output.add(entry); // If yes, add the entry to the output list
             }
@@ -275,52 +273,51 @@ public class filters
 
     public void print(ArrayList<File> renamedFiles, String inType, int enId)
     {
-        int countFile = renamedFiles.size(); // Counter for setting maximum bound in the for loop
-
         // Print information for local entries
         if (inType.equals("local"))
         {
-            for (int i = 0; i < countFile; i++)
+            for (File file : renamedFiles)
             {
-                System.out.println("Name: " + renamedFiles.get(i).getName()); // Print name of the entry
-                if (renamedFiles.get(i).isDirectory())
+                System.out.println("Name: " + file.getName()); // Print name of the entry
+                if (file.isDirectory())
                 {
                     int size = 0;
-                    List<File> subEntries = Arrays.asList(renamedFiles.get(i).listFiles());
-                    for (int j = 0; j < subEntries.size(); j++)
+                    File[] subEntries = file.listFiles();
+                    for (File subEntry : subEntries)
                     {
-                        size += subEntries.get(j).length();
+                        size += subEntry.length();
                     }
                     System.out.println("Length: " + size); // Print total size of sub-entries if the entry is a directory
                 }
                 else
                 {
-                    System.out.println("Length: " + renamedFiles.get(i).length()); // Print length of the entry if it's a file
+                    System.out.println("Length: " + file.length()); // Print length of the entry if it's a file
                 }
-                System.out.println("Absolute Path: " + renamedFiles.get(i).getPath()); // Print absolute path of the entry
+                System.out.println("Absolute Path: " + file.getAbsolutePath() + "\n"); // Print absolute path of the entry
             }
-        } // Print information for remote entries
+        }
+        // Print information for remote entries
         else
         {
-            for (int i = 0; i < countFile; i++)
+            for (File file : renamedFiles)
             {
-                System.out.println("Name: " + renamedFiles.get(i).getName()); // Print name of the entry
+                System.out.println("Name: " + file.getName()); // Print name of the entry
                 System.out.println("EntryId: " + enId); // Print entryId (provided as parameter)
-                if (renamedFiles.get(i).isDirectory())
+                if (file.isDirectory())
                 {
                     int size = 0;
-                    List<File> subEntries = Arrays.asList(renamedFiles.get(i).listFiles());
-                    for (int j = 0; j < subEntries.size(); j++)
+                    File[] subEntries = file.listFiles();
+                    for (File subEntry : subEntries)
                     {
-                        size += subEntries.get(j).length();
+                        size += subEntry.length();
                     }
                     System.out.println("Length: " + size); // Print total size of sub-entries if the entry is a directory
                 }
                 else
                 {
-                    System.out.println("Length: " + renamedFiles.get(i).length()); // Print length of the entry if it's a file
+                    System.out.println("Length: " + file.length()); // Print length of the entry if it's a file
                 }
-                System.out.println("Absolute Path: " + renamedFiles.get(i).getPath()); // Print absolute path of the entry
+                System.out.println("Absolute Path: " + file.getPath() + "\n"); // Print path of the entry. Since it's downloaded locally, the relative path is the same as the remote absolute path
             }
         }
     }

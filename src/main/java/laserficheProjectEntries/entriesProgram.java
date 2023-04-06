@@ -162,6 +162,12 @@ public class entriesProgram
         {
             e.printStackTrace();
         }
+
+        //Deleting all extra files that were made
+        for (File delEn : entries)
+        {
+            delEn.delete();
+        }
     }
 
     /**
