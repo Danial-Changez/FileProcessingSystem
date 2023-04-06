@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.function.Consumer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.*;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 /**
  *
@@ -118,6 +119,7 @@ public class entriesProgram
 
                         case "Count":
                             int Min = 0;
+                            Key = "";
                             if (paramName.equals("Key"))
                             {
                                 Key = paramValue;
@@ -142,10 +144,10 @@ public class entriesProgram
 
                         case "Rename":
                             String suffix = paramValue;
-                            entries = filter.renameFile(entries, suffix);
+                            entries = filter.Rename(entries, suffix);
 
                         case "Print":
-                            filter.print(entries);
+                            filter.print(entries, inputType, entryId);
                             break;
                     }
                 }
