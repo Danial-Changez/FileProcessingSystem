@@ -81,7 +81,7 @@ public class entriesProgram
                     else
                     {
                         repId = (String) inputEntry.get("repositoryId");
-                        entryId = (int) inputEntry.get("entryId");
+                        entryId = Integer.parseInt(inputEntry.get("entryId").toString());
                     }
                     entries = listOfEntries(repId, entryId, path, inputType);
                 }
@@ -96,7 +96,7 @@ public class entriesProgram
                     // Get the name and value of the parameter
                     String paramName = (String) parameter.get("name");
                     String paramValue = (String) parameter.get("value");
-
+                    System.out.println("paramName: " + paramName);
                     switch (paramName)
                     {
                         case "Length":
@@ -204,14 +204,22 @@ public class entriesProgram
                     .getEntryListing(repositoryId, rootEntryId, true, null, null, null, null, null, "name", null, null, null).join();
 
             List<Entry> entries = result.getValue();
-            boolean check = true;
 
             for (int i = 0; i < entries.size(); i++)
             {
+                boolean check = true;
                 System.out.println(
                         String.format("Child Entry ID: %d, Name: %s, EntryType: %s, FullPath: %s",
                                 entries.get(i).getId(), entries.get(i).getName(), entries.get(i).getEntryType(), entries.get(i).getFullPath()));
-                output.add(new File(entries.get(i).getName()));
+
+                if (entries.get(i).getEntryType().toString().equals("Document"))
+                {
+                    output.add(new File(entries.get(i).getName() + ".txt"));
+                }
+                else
+                {
+                    output.add(new File(entries.get(i).getName()));
+                }
 
                 String folderName = entries.get(i).getName();
                 File outputDirectory = new File(folderName);
@@ -243,7 +251,7 @@ public class entriesProgram
     public static void download(List<Entry> en, int n, RepositoryApiClient cl, String repID, File outDir, Boolean check)
     {
         int entryIdToDownload = en.get(n).getId();
-        String FILE_NAME = en.get(n).getName();
+        String FILE_NAME = en.get(n).getName() + ".txt";
 
         Consumer<InputStream> consumer = inputStream ->
         {
