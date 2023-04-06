@@ -233,12 +233,20 @@ public class filters
         String fileName; // string to store the current file name while iterating through the loop
         int dotIndex; // variable used to store the index of the "." in the filename string
         String newFileName; // string used to store the new file name after appending the suffix string
-
         for (int i = 0; i < countFile; i++)
         { // loop to iterate through the array list containing the original file names
             fileName = originalFileNames.get(i); // get the current file name from the original file names list
-            dotIndex = fileName.lastIndexOf('.'); // saves the last position of the "." character into the dotIndex variable
-            newFileName = fileName.substring(0, dotIndex) + suffix + fileName.substring(dotIndex); // using the substring() method to concatenate the suffix string before the ".txt"
+            File file = new File(fileName);
+
+            if (file.isDirectory())
+            {
+                newFileName = fileName + suffix; // using the substring() method to concatenate the suffix string before the ".txt"
+            }
+            else
+            {
+                dotIndex = fileName.lastIndexOf('.'); // saves the last position of the "." character into the dotIndex variable
+                newFileName = fileName.substring(0, dotIndex) + suffix + fileName.substring(dotIndex); // using the substring() method to concatenate the suffix string before the ".txt"
+            }
             renamedFiles.add(newFileName); // adding the renamed file name into the renamedFiles list
         }
         return renamedFiles; // returning renamedFiles list of type ArrayList<String>

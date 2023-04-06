@@ -155,11 +155,6 @@ public class entriesProgram
 
                         case "List":
                             entries = filter.List(entries, Max);
-//                            System.out.println("Entries: ");
-//                            for (String entry : entries)
-//                            {
-//                                System.out.println(entry);
-//                            }
                             break;
 
                         case "Rename":
