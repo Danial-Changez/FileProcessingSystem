@@ -23,7 +23,6 @@ import java.util.List;
  */
 public class filters
 {
-
     public ArrayList<File> Name(ArrayList<File> entries, String Key)
     {
         ArrayList<File> output = new ArrayList<File>(); // Create an ArrayList to store output files
