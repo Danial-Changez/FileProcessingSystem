@@ -18,11 +18,6 @@ import java.util.List;
  */
 public class filters
 {
-    public static void main(String[] args)
-    {
-
-    }
-
     public static ArrayList<File> renameFile(List<File> originalFileNames, String suffix)
     {
         int countFile = originalFileNames.size(); //counter for setting maximum bound in the for loop

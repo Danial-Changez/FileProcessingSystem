@@ -12,6 +12,7 @@ import com.laserfiche.repository.api.RepositoryApiClientImpl;
 import com.laserfiche.repository.api.clients.impl.model.Entry;
 import com.laserfiche.repository.api.clients.impl.model.ODataValueContextOfIListOfEntry;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,9 +29,9 @@ import org.json.simple.parser.ParseException;
  *
  * @author
  */
-public class entriesProgram
+public class entriesProgram extends filters
 {
-    public static void main(String[] args)
+    public static void main(String[] args) throws FileNotFoundException, ParseException, IOException
     {
         JSONParser parser = new JSONParser();
         filters filter = new filters();
@@ -40,49 +41,55 @@ public class entriesProgram
 
         try
         {
-            Object obj = parser.parse(new FileReader("C:\\Users\\dania\\OneDrive\\Desktop\\Test Scenario.json"));
+            Object obj = parser.parse(new FileReader("C:\\Users\\hassa\\Desktop\\Test Scenario.json"));
             JSONObject jsonObj = (JSONObject) obj;
 
             // Get the processing elements array
             JSONArray processingElements = (JSONArray) jsonObj.get("processing_elements");
 
             // Loop through each processing element
-            for (Object elem : processingElements)
-            {
+            for (Object elem : processingElements) {
                 JSONObject processingElement = (JSONObject) elem;
 
                 // Get the type of method
                 String type = (String) processingElement.get("type");
                 System.out.println("Type: " + type);
 
+                // Initialize inputType to an empty string
+                String inputType = "";
+
                 // Get the input entries array
                 JSONArray inputEntries = (JSONArray) processingElement.get("input_entries");
 
-                // Loop through each input entry
-                JSONObject inputEntry = (JSONObject) inputEntries.get(0);
+                // Check if the inputEntries array is not empty
+                if (!inputEntries.isEmpty()) {
+                    // Loop through each input entry
+                    JSONObject inputEntry = (JSONObject) inputEntries.get(0);
 
-                // Get the type of input entry
-                String inputType = (String) inputEntry.get("type");
+                    // Get the type of input entry
+                    inputType = (String) inputEntry.get("type");
 
-                // Get the path (if it's a local input)
-                if (inputType.equals("local"))
-                {
-                    path = (String) inputEntry.get("path");
-                }
-
-                //Get repositoryId and entryId (if it's a remote input)
-                else
-                {
-                    repId = (String) inputEntry.get("repositoryId");
-                    entryId = (int) inputEntry.get("entryId");
+                    // Get the path (if it's a local input)
+                    if (inputType.equals("local")) {
+                        path = (String) inputEntry.get("path");
+                    } //Get repositoryId and entryId (if it's a remote input)
+                    else {
+                        repId = (String) inputEntry.get("repositoryId");
+                        entryId = (int) inputEntry.get("entryId");
+                    }
+                } else {
+                    // Handle the case where inputEntries is empty
+                    System.err.println("Error: inputEntries array is empty.");
+                    System.exit(1);
                 }
 
                 // Get the parameters array
                 JSONArray parameters = (JSONArray) processingElement.get("parameters");
                 ArrayList<String> entries = listOfEntries(repId, entryId, path, inputType);
+
                 // Loop through each parameter
-                for (Object param : parameters)
-                {
+                for (Object param : parameters) {
+
                     JSONObject parameter = (JSONObject) param;
 
                     // Get the name and value of the parameter
