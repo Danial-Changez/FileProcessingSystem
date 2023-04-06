@@ -28,16 +28,16 @@ import org.json.simple.parser.ParseException;
  *
  * @author danial
  */
-public class entriesProgram
+public class entriesProgram extends filters
 {
     public static void main(String[] args)
     {
         // Declare and initialize variables
         ArrayList<File> entries = new ArrayList<File>();
+        entriesProgram filter = new entriesProgram();
         JSONParser parser = new JSONParser();
         JSONArray inputEntries;
         JSONObject inputEntry;
-        filters filter = new filters();
         String repId = "";
         String inputType = "";
         String path = "";
